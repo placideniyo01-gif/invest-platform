@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Deposit</title>
+
+<style>
+
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    margin:0;
+    padding:20px;
+}
+
+.card{
+    max-width:500px;
+    margin:auto;
+    background:#1e293b;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+h1{
+    text-align:center;
+}
+
+.warning{
+    background:#78350f;
+    color:#facc15;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:20px;
+    font-size:14px;
+}
+
+input,select{
+    width:100%;
+    padding:15px;
+    margin-top:15px;
+    border:none;
+    border-radius:10px;
+    background:#334155;
+    color:white;
+    font-size:15px;
+    box-sizing:border-box;
+}
+
+input:focus,select:focus{
+    outline:none;
+    border:1px solid #2563eb;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+    font-size:15px;
+    transition:0.3s;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+.step{
+    display:none;
+}
+
+.active{
+    display:block;
+}
+
+.popup{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+
+.popup-content{
+    background:#1e293b;
+    padding:25px;
+    border-radius:20px;
+    width:350px;
+    text-align:center;
+}
+
+.close{
+    background:red;
+}
+
+.success{
+    color:#22c55e;
+    font-size:15px;
+}
+
+.wallet-address{
+    color:#60a5fa;
+    font-size:20px;
+    font-weight:bold;
+    cursor:pointer;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+    text-align:center;
+    padding:10px;
+}
+
+.wallet-address:hover{
+    color:#93c5fd;
+}
+
+.copied-box{
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:#22c55e;
+    color:white;
+    padding:15px 25px;
+    border-radius:10px;
+    display:none;
+    z-index:9999;
+    font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="copiedBox" class="copied-box">
+    Address Copied Successfully
+</div>
+
+<div class="card">
+
+<h1>Deposit</h1>
+
+<div class="warning">
+⚠ Minimum Deposit = 20 USD
+</div>
+
+<!-- STEP 1 -->
+<div id="step1" class="step active">
+
+<select id="depositType">
+
+<option value="">Select Type</option>
+<option value="MTN">MTN</option>
+<option value="USDT">USDT</option>
+
+</select>
+
+<button onclick="nextStep1()">
+Next
+</button>
+
+</div>
+
+<!-- STEP 2 -->
+<div id="step2" class="step">
+
+<div id="rateArea"></div>
+
+<button onclick="nextStep2()">
+Continue
+</button>
+
+</div>
+
+<!-- STEP 3 -->
+<div id="step3" class="step">
+
+<form method="POST" onsubmit="return validateDeposit()">
+
+{% csrf_token %}
+
+<input type="hidden" name="type" id="typeInput">
+
+<!-- MTN -->
+<div id="mtnForm">
+
+<input
+type="number"
+name="amount_rwf"
+id="amount_rwf"
+placeholder="Amount in RWF"
+onkeyup="calculateUSD()"
+>
+
+<input
+type="text"
+name="phone"
+placeholder="MTN Number"
+>
+
+<input
+type="text"
+name="names"
+placeholder="Registered Names"
+>
+
+<h3>
+USD You Receive:
+<span id="usdResult">0</span>
+</h3>
+
+</div>
+
+<!-- USDT -->
+<div id="usdtForm" style="display:none;">
+
+<p class="success">
+TRC20 Network Only
+</p>
+
+<input
+type="number"
+name="amount_usdt"
+id="amount_usdt"
+placeholder="Amount USDT"
+>
+
+<input
+type="text"
+name="wallet"
+placeholder="TRC20 Wallet Address"
+>
+
+</div>
+
+<button type="button" onclick="showPopup()">
+Deposit
+</button>
+
+<!-- POPUP -->
+<div class="popup" id="popup">
+
+<div class="popup-content">
+
+<div id="popupText"></div>
+
+<button type="submit">
+I Have Sent Payment
+</button>
+
+<button
+type="button"
+class="close"
+onclick="closePopup()"
+>
+Close
+</button>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+<script>
+
+let currentRate = {{ rate }}
+
+// STEP 1
+function nextStep1(){
+
+    let type = document.getElementById("depositType").value
+
+    if(!type){
+
+        alert("Select deposit type")
+        return
+    }
+
+    document.getElementById("step1").classList.remove("active")
+
+    document.getElementById("step2").classList.add("active")
+
+    if(type == "MTN"){
+
+        document.getElementById("rateArea").innerHTML = `
+        
+        <h2>
+        LIVE RATE:
+        <br>
+        1 USD = ${currentRate} RWF
+        </h2>
+
+        <p>
+        Continue with this exchange rate
+        </p>
+        `
+
+    }else{
+
+        document.getElementById("rateArea").innerHTML = `
+        <h2>USDT Deposit</h2>
+
+        <p>
+        Only TRC20 network supported
+        </p>
+        `
+    }
+}
+
+// STEP 2
+function nextStep2(){
+
+    let type = document.getElementById("depositType").value
+
+    document.getElementById("typeInput").value = type
+
+    document.getElementById("step2").classList.remove("active")
+
+    document.getElementById("step3").classList.add("active")
+
+    if(type == "USDT"){
+
+        document.getElementById("mtnForm").style.display = "none"
+
+        document.getElementById("usdtForm").style.display = "block"
+    }
+}
+
+// CALCULATE USD
+function calculateUSD(){
+
+    let rwf = parseFloat(
+        document.getElementById("amount_rwf").value || 0
+    )
+
+    let usd = rwf / currentRate
+
+    document.getElementById("usdResult").innerHTML =
+    usd.toFixed(4)
+}
+
+// VALIDATION
+function validateDeposit(){
+
+    let type = document.getElementById("depositType").value
+
+    if(type == "MTN"){
+
+        let rwf = parseFloat(
+            document.getElementById("amount_rwf").value || 0
+        )
+
+        let usd = rwf / currentRate
+
+        if(usd < 20){
+
+            alert("Minimum deposit is $20")
+
+            return false
+        }
+    }
+
+    else{
+
+        let usdt = parseFloat(
+            document.getElementById("amount_usdt").value || 0
+        )
+
+        if(usdt < 20){
+
+            alert("Minimum deposit is $20")
+
+            return false
+        }
+    }
+
+    return true
+}
+
+// SHOW POPUP
+function showPopup(){
+
+    if(!validateDeposit()){
+        return
+    }
+
+    let type = document.getElementById("depositType").value
+
+    document.getElementById("popup").style.display = "flex"
+
+    // MTN
+    if(type == "MTN"){
+
+        let amount =
+        document.getElementById("amount_rwf").value
+
+        document.getElementById("popupText").innerHTML = `
+
+        <h2>Complete MTN Payment</h2>
+
+        <p>
+        Dial:
+        </p>
+
+        <h3>
+        *182*8*1*1861343*${amount}#
+        </h3>
+
+        <p>
+        After payment click:
+        <br>
+        "I Have Sent Payment"
+        </p>
+        `
+    }
+
+    // USDT
+    else{
+
+        document.getElementById("popupText").innerHTML = `
+
+        <h2>Send USDT</h2>
+
+        <p>
+        Network: TRC20
+        </p>
+
+        <p>
+        copy this address:
+        </p>
+
+        <div
+            id="walletAddress"
+            class="wallet-address"
+            onclick="copyWallet()"
+        >
+            TCstv6LGK2oMF5MFvqpaA8Ypyi1b1CrGqh
+        </div>
+
+        <p>
+        After transfer click:
+        <br>
+        "I Have Sent Payment"
+        </p>
+        `
+    }
+}
+
+// COPY WALLET
+function copyWallet(){
+
+    let wallet =
+    document.getElementById("walletAddress").innerText
+
+    navigator.clipboard.writeText(wallet)
+
+    let box =
+    document.getElementById("copiedBox")
+
+    box.style.display = "block"
+
+    setTimeout(()=>{
+        box.style.display = "none"
+    },3000)
+}
+
+// CLOSE POPUP
+function closePopup(){
+
+    document.getElementById("popup").style.display = "none"
+}
+
+</script>
+
+</body>
+</html>

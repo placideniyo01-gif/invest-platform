@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Notifications</title>
+
+<style>
+
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    padding:20px;
+}
+
+.card{
+    max-width:700px;
+    margin:auto;
+}
+
+.item{
+    background:#1e293b;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:15px;
+}
+
+.time{
+    color:#94a3b8;
+    font-size:13px;
+    margin-top:8px;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+<h1>Notifications</h1>
+
+{% for n in notifications %}
+
+<div class="item">
+
+<h3>{{ n.message }}</h3>
+
+<div class="time">
+{{ n.created_at|timesince }} ago
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+<script>
+let ws = new WebSocket("ws://127.0.0.1:8000/ws/admin/");
+
+ws.onmessage = function(e){
+
+    let data = JSON.parse(e.data);
+
+    let box = document.createElement("div");
+
+    box.innerHTML = data.message;
+    box.style = `
+        position:fixed;
+        top:20px;
+        right:20px;
+        background:#22c55e;
+        padding:10px;
+        border-radius:10px;
+        color:white;
+    `;
+
+    document.body.appendChild(box);
+
+    setTimeout(()=> box.remove(), 4000);
+}
+</script>
+</body>
+</html>

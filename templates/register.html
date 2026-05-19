@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Register</title>
+
+    <style>
+
+        body{
+            background:#0f172a;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            font-family:Arial;
+        }
+
+        .card{
+            width:350px;
+            background:#1e293b;
+            padding:40px;
+            border-radius:20px;
+        }
+
+        h1{
+            color:white;
+            text-align:center;
+        }
+
+        input{
+            width:100%;
+            padding:15px;
+            margin-top:15px;
+            border:none;
+            border-radius:10px;
+            background:#334155;
+            color:white;
+        }
+
+        button{
+            width:100%;
+            padding:15px;
+            margin-top:20px;
+            border:none;
+            border-radius:10px;
+            background:#2563eb;
+            color:white;
+            cursor:pointer;
+        }
+
+        p{
+            color:white;
+            text-align:center;
+        }
+
+        a{
+            color:#38bdf8;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="card">
+
+    <h1>Create Account</h1>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input type="email" name="email" placeholder="Email">
+
+        <input type="password" name="password" placeholder="Password">
+
+        <input type="password" name="confirm" placeholder="Confirm Password">
+
+        <button>Create Account</button>
+
+    </form>
+
+    <p>
+        I have existing account
+        <a href="/">Login</a>
+    </p>
+
+</div>
+
+</body>
+</html>

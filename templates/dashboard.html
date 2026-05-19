@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Dashboard</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#0f172a;
+            font-family:Arial, sans-serif;
+            color:white;
+        }
+
+        .container{
+            max-width:550px;
+            margin:auto;
+            padding:20px;
+        }
+
+        .top-bar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            margin-bottom:20px;
+        }
+
+        .bell{
+            flex:1;
+            background:#2563eb;
+            padding:14px;
+            border-radius:14px;
+            color:white;
+            text-decoration:none;
+            text-align:center;
+            font-weight:bold;
+            font-size:14px;
+        }
+
+        .balance{
+            background:#1e293b;
+            padding:35px 20px;
+            border-radius:25px;
+            text-align:center;
+            box-shadow:0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .balance h1{
+            font-size:42px;
+            color:#22c55e;
+            margin-bottom:10px;
+            word-break:break-word;
+        }
+
+        .balance p{
+            color:#94a3b8;
+            font-size:15px;
+        }
+
+        .buttons{
+            display:flex;
+            gap:15px;
+            margin-top:20px;
+        }
+
+        .btn{
+            flex:1;
+            background:#2563eb;
+            padding:18px;
+            border-radius:18px;
+            text-align:center;
+            text-decoration:none;
+            color:white;
+            font-weight:bold;
+            transition:.3s;
+        }
+
+        .btn:hover{
+            transform:scale(1.03);
+        }
+
+        .interest{
+            margin-top:25px;
+            background:#1e293b;
+            padding:25px;
+            border-radius:25px;
+            text-align:center;
+            box-shadow:0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .daily-interest{
+            color:#22c55e;
+            font-weight:bold;
+            margin-bottom:15px;
+            line-height:1.6;
+        }
+
+        .interest h2{
+            font-size:30px;
+            margin-top:10px;
+            word-break:break-word;
+        }
+
+        .claim-btn{
+            width:100%;
+            margin-top:20px;
+            background:#22c55e;
+            border:none;
+            padding:16px;
+            border-radius:15px;
+            color:white;
+            font-size:16px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .claim-btn:hover{
+            opacity:.9;
+        }
+
+        .contact-btn{
+            display:block;
+            margin-top:20px;
+            background:#1877f2;
+            padding:18px;
+            border-radius:18px;
+            text-align:center;
+            text-decoration:none;
+            color:white;
+            font-weight:bold;
+        }
+
+        .referral-box{
+            margin-top:25px;
+            background:#1e293b;
+            padding:25px;
+            border-radius:25px;
+            box-shadow:0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .referral-title{
+            color:#22c55e;
+            margin-bottom:10px;
+            font-size:24px;
+        }
+
+        .referral-text{
+            color:#cbd5e1;
+            line-height:1.7;
+            font-size:14px;
+            margin-bottom:18px;
+        }
+
+        .referral-link-box{
+            background:#0f172a;
+            border:1px solid #334155;
+            padding:15px;
+            border-radius:15px;
+            overflow:hidden;
+        }
+
+        .referral-link{
+            color:#60a5fa;
+            text-decoration:none;
+            word-break:break-all;
+            font-size:14px;
+        }
+
+        .copy-btn{
+            width:100%;
+            margin-top:15px;
+            background:#2563eb;
+            border:none;
+            padding:14px;
+            border-radius:12px;
+            color:white;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .ref-stats{
+            margin-top:20px;
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:15px;
+        }
+
+        .stat-card{
+            background:#0f172a;
+            border:1px solid #334155;
+            padding:18px;
+            border-radius:16px;
+            text-align:center;
+        }
+
+        .stat-card h3{
+            color:#94a3b8;
+            font-size:14px;
+            margin-bottom:10px;
+        }
+
+        .stat-card p{
+            color:#22c55e;
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .referral-users{
+            margin-top:25px;
+        }
+
+        .users-title{
+            color:#22c55e;
+            margin-bottom:15px;
+        }
+
+        .ref-user{
+            background:#0f172a;
+            border:1px solid #334155;
+            padding:15px;
+            border-radius:15px;
+            margin-bottom:12px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+        }
+
+        .active-badge{
+            background:#22c55e;
+            padding:8px 12px;
+            border-radius:10px;
+            font-size:13px;
+            font-weight:bold;
+        }
+
+        .locked-badge{
+            background:#f59e0b;
+            padding:8px 12px;
+            border-radius:10px;
+            font-size:13px;
+            font-weight:bold;
+        }
+
+        .empty-text{
+            color:#94a3b8;
+            text-align:center;
+            margin-top:10px;
+        }
+
+        #liveNotification{
+            position:fixed;
+            top:20px;
+            right:20px;
+            background:#22c55e;
+            color:white;
+            padding:15px 20px;
+            border-radius:12px;
+            display:none;
+            z-index:9999;
+            font-weight:bold;
+            box-shadow:0 0 20px rgba(0,0,0,0.4);
+        }
+
+        @media(max-width:600px){
+
+            .buttons{
+                flex-direction:column;
+            }
+
+            .ref-stats{
+                grid-template-columns:1fr;
+            }
+
+            .balance h1{
+                font-size:32px;
+            }
+
+            .interest h2{
+                font-size:24px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div id="liveNotification"></div>
+
+<div class="container">
+
+    <!-- TOP -->
+    <div class="top-bar">
+
+        <a href="/notifications/" class="bell">
+            🔔 Notifications
+        </a>
+
+        <a href="/transactions/" class="bell">
+            📄 History
+        </a>
+
+    </div>
+
+    <!-- BALANCE -->
+    <div class="balance">
+
+        <h1 id="balance">
+            ${{ profile.balance|floatformat:6 }}
+        </h1>
+
+        <p>
+            Main Balance
+        </p>
+
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="buttons">
+
+        <a href="/deposit/" class="btn">
+            💰 Deposit
+        </a>
+
+        <a href="/withdraw/" class="btn">
+            💸 Withdraw
+        </a>
+
+    </div>
+
+    <!-- CONTACT -->
+    <a
+        href="https://m.me/YOUR_FACEBOOK_PAGE_NAME"
+        target="_blank"
+        class="contact-btn"
+    >
+        💬 Contact Us
+    </a>
+
+    <!-- INTEREST -->
+    <div class="interest">
+
+        <p class="daily-interest">
+
+            🔥 5% Base Interest
+            <br>
+
+            🚀 Active Referral Bonus:
+            +{{ active_bonus_percent }}%
+
+            <br>
+
+            💎 Total Daily Rate:
+            {{ total_daily_percent }}%
+
+        </p>
+
+        <h2>
+
+            Interest
+
+            <br><br>
+
+            <span id="interest">
+                {{ profile.interest_balance|floatformat:6 }}
+            </span>
+
+            USD
+
+        </h2>
+
+        <button
+            class="claim-btn"
+            onclick="claimInterest()"
+        >
+            Claim Interest
+        </button>
+
+    </div>
+
+    <!-- REFERRAL -->
+    <div class="referral-box">
+
+        <h2 class="referral-title">
+            🎁 Referral Program
+        </h2>
+
+        <p class="referral-text">
+
+            Invite users using your referral link.
+            Your interest rate increases automatically
+            when referrals make deposits.
+
+        </p>
+
+        <!-- LINK -->
+        <div class="referral-link-box">
+
+            <a
+                id="referralLink"
+                class="referral-link"
+            >
+
+                {{ referral_link }}
+
+            </a>
+
+        </div>
+
+        <button
+            class="copy-btn"
+            onclick="copyReferral()"
+        >
+            Copy Referral Link
+        </button>
+
+        <!-- STATS -->
+        <div class="ref-stats">
+
+            <div class="stat-card">
+
+                <h3>
+                    👥 Referrals
+                </h3>
+
+                <p>
+                    {{ total_referrals }}
+                </p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h3>
+                    🚀 Active Bonus
+                </h3>
+
+                <p>
+                    +{{ active_bonus_percent }}%
+                </p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h3>
+                    🔒 Locked Bonus
+                </h3>
+
+                <p>
+                    +{{ locked_bonus_percent }}%
+                </p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h3>
+                    💰 Referral Profit
+                </h3>
+
+                <p>
+                    ${{ referral_profit }}
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- REFERRAL USERS -->
+        <div class="referral-users">
+
+            <h3 class="users-title">
+                👥 Your Referral Team
+            </h3>
+
+            {% for bonus in referral_bonuses %}
+
+            <div class="ref-user">
+
+                <div>
+
+                    <strong>
+                        {{ bonus.referred_user.username }}
+                    </strong>
+
+                    <br>
+
+                    <small>
+                        Deposit:
+                        ${{ bonus.deposit.amount_usd }}
+                    </small>
+
+                    <br>
+
+                    <small>
+                        Bonus:
+                        +{{ bonus.bonus_percent }}%
+                    </small>
+
+                    <br>
+
+                    <small>
+                        Expire:
+                        {{ bonus.expires_at|date:"M d, Y" }}
+                    </small>
+
+                </div>
+
+                <div>
+
+                    {% if bonus.is_active %}
+
+                    <span class="active-badge">
+                        ACTIVE
+                    </span>
+
+                    {% else %}
+
+                    <span class="locked-badge">
+                        LOCKED
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% empty %}
+
+            <p class="empty-text">
+
+                No referrals yet
+
+            </p>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+let balance =
+parseFloat("{{ profile.balance|default:0 }}") || 0
+
+let interest =
+parseFloat("{{ profile.interest_balance|default:0 }}") || 0
+
+let activeBonus =
+parseFloat("{{ active_bonus_percent|default:0 }}") || 0
+
+
+// ==========================
+// LIVE INTEREST
+// ==========================
+function updateInterest(){
+
+    let totalPercent =
+    5 + activeBonus
+
+    let perSecond =
+    (balance * (totalPercent / 100)) / 86400
+
+    interest += perSecond
+
+    document.getElementById("interest").innerHTML =
+    interest.toFixed(6)
+}
+
+setInterval(updateInterest,1000)
+
+
+// ==========================
+// CLAIM INTEREST
+// ==========================
+function claimInterest(){
+
+    fetch('/claim-interest/')
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        balance =
+        parseFloat(data.balance) || 0
+
+        interest =
+        parseFloat(data.interest) || 0
+
+        document.getElementById("balance").innerHTML =
+        "$" + balance.toFixed(6)
+
+        document.getElementById("interest").innerHTML =
+        interest.toFixed(6)
+
+        showNotification(
+            "Interest claimed successfully ✅"
+        )
+    })
+}
+
+
+// ==========================
+// COPY REFERRAL
+// ==========================
+function copyReferral(){
+
+    let text =
+    document.getElementById("referralLink")
+    .innerText
+
+    navigator.clipboard.writeText(text)
+
+    showNotification(
+        "Referral link copied successfully ✅"
+    )
+}
+
+
+// ==========================
+// NOTIFICATION
+// ==========================
+function showNotification(msg){
+
+    let n =
+    document.getElementById("liveNotification")
+
+    n.innerHTML = msg
+
+    n.style.display = "block"
+
+    setTimeout(()=>{
+
+        n.style.display = "none"
+
+    },4000)
+}
+
+
+// ==========================
+// WEBSOCKET
+// ==========================
+const socket = new WebSocket(
+
+    "ws://" +
+    window.location.host +
+    "/ws/balance/"
+
+)
+
+socket.onmessage = function(e){
+
+    const data = JSON.parse(e.data)
+
+    if(data.balance !== undefined){
+
+        balance =
+        parseFloat(data.balance) || 0
+
+        document.getElementById("balance").innerHTML =
+        "$" + balance.toFixed(6)
+    }
+
+    if(data.interest !== undefined){
+
+        interest =
+        parseFloat(data.interest) || 0
+
+        document.getElementById("interest").innerHTML =
+        interest.toFixed(6)
+    }
+
+    if(data.message){
+
+        showNotification(data.message)
+    }
+}
+
+socket.onopen = function(){
+
+    console.log("WebSocket Connected")
+}
+
+socket.onclose = function(){
+
+    console.log("WebSocket Disconnected")
+}
+
+socket.onerror = function(error){
+
+    console.log("WebSocket Error", error)
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+<h2 style="color:white;">Transaction History</h2>
+
+{% for t in transactions %}
+<div style="padding:10px; background:#1e293b; margin:10px; border-radius:10px; color:white;">
+    <p><b>{{ t.type }}</b></p>
+    <p>{{ t.amount }} USD</p>
+    <p>{{ t.created_at }}</p>
+</div>
+{% endfor %}

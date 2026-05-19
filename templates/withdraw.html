@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Withdraw</title>
+
+<style>
+
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    margin:0;
+    padding:20px;
+}
+
+.card{
+    max-width:500px;
+    margin:auto;
+    background:#1e293b;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+h1{
+    text-align:center;
+}
+
+.step{
+    display:none;
+}
+
+.active{
+    display:block;
+}
+
+input,select{
+    width:100%;
+    padding:15px;
+    margin-top:15px;
+    border:none;
+    border-radius:10px;
+    background:#334155;
+    color:white;
+    font-size:15px;
+    box-sizing:border-box;
+}
+
+input:focus,
+select:focus{
+    outline:none;
+    border:1px solid #22c55e;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#22c55e;
+    color:white;
+    cursor:pointer;
+    font-size:15px;
+    transition:0.3s;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+.popup{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+
+.popup-content{
+    background:#1e293b;
+    padding:25px;
+    border-radius:15px;
+    width:350px;
+    text-align:center;
+}
+
+.warning{
+    background:#78350f;
+    color:#facc15;
+    padding:12px;
+    border-radius:10px;
+    margin-top:15px;
+    font-size:14px;
+}
+
+.hidden{
+    display:none;
+}
+
+.result-box{
+    background:#0f172a;
+    padding:15px;
+    border-radius:10px;
+    margin-top:20px;
+}
+
+.close{
+    background:red;
+}
+
+.green{
+    color:#22c55e;
+}
+
+.attention{
+    background:#7c2d12;
+    color:#fdba74;
+    padding:12px;
+    border-radius:10px;
+    margin-top:15px;
+    font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>Withdraw</h1>
+
+<div class="warning">
+⚠ Minimum Withdraw = 20 USD
+</div>
+
+<!-- STEP 1 -->
+<div id="step1" class="step active">
+
+<select id="type" onchange="toggleFields()">
+
+<option value="">Select Type</option>
+<option value="MTN">MTN</option>
+<option value="USDT">USDT</option>
+
+</select>
+
+<button onclick="next1()">
+Continue
+</button>
+
+</div>
+
+<!-- STEP 2 -->
+<div id="step2" class="step">
+
+<div id="rateBox"></div>
+
+<div id="feeBox"></div>
+
+<button onclick="next2()">
+Next
+</button>
+
+</div>
+
+<!-- STEP 3 -->
+<div id="step3" class="step">
+
+<form method="POST" onsubmit="return validateWithdraw()">
+
+{% csrf_token %}
+
+<input type="hidden" name="type" id="typeInput">
+
+<!-- AMOUNT -->
+<input
+type="number"
+name="amount_usd"
+id="amount_usd"
+placeholder="Amount USD"
+onkeyup="calculate()"
+>
+
+<!-- MTN -->
+<div id="phoneBox" class="hidden">
+
+<input
+type="text"
+name="phone"
+placeholder="MTN Number"
+>
+
+<input
+type="text"
+name="id_names"
+placeholder="ID Names"
+>
+
+<div class="attention">
+⚠ ID Names must match the names registered on this MTN number.
+</div>
+
+</div>
+
+<!-- USDT -->
+<div id="walletBox" class="hidden">
+
+<input
+type="text"
+name="wallet"
+placeholder="TRC20 Wallet"
+>
+
+</div>
+
+<div class="result-box">
+
+<h3>
+You Receive:
+</h3>
+
+<h2 class="green">
+<span id="receive">0</span>
+</h2>
+
+</div>
+
+<button type="button" onclick="popup()">
+Withdraw
+</button>
+
+<!-- POPUP -->
+<div class="popup" id="popup">
+
+<div class="popup-content">
+
+<div id="popupText"></div>
+
+<button type="submit">
+Confirm Withdraw
+</button>
+
+<button
+type="button"
+class="close"
+onclick="closePopup()"
+>
+Close
+</button>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+<script>
+
+let rate = {{ rate }}
+
+let feePercent = 0.02
+
+// STEP 1
+function next1(){
+
+    let t =
+    document.getElementById("type").value
+
+    if(!t){
+
+        alert("Select withdraw type")
+
+        return
+    }
+
+    document.getElementById("typeInput").value = t
+
+    document.getElementById("step1")
+    .classList.remove("active")
+
+    document.getElementById("step2")
+    .classList.add("active")
+
+    if(t == "MTN"){
+
+        document.getElementById("rateBox").innerHTML = `
+
+        <h2>
+        LIVE RATE
+        </h2>
+
+        <h3>
+        1 USD = ${rate} RWF
+        </h3>
+        `
+    }
+
+    else{
+
+        document.getElementById("rateBox").innerHTML = `
+
+        <h2>
+        USDT Withdraw
+        </h2>
+
+        <p>
+        TRC20 Network Only
+        </p>
+        `
+    }
+
+    document.getElementById("feeBox").innerHTML = `
+
+    <div class="warning">
+    Withdraw Fee = 2%
+    </div>
+    `
+}
+
+// STEP 2
+function next2(){
+
+    document.getElementById("step2")
+    .classList.remove("active")
+
+    document.getElementById("step3")
+    .classList.add("active")
+}
+
+// TOGGLE INPUTS
+function toggleFields(){
+
+    let t =
+    document.getElementById("type").value
+
+    let phoneBox =
+    document.getElementById("phoneBox")
+
+    let walletBox =
+    document.getElementById("walletBox")
+
+    if(t == "MTN"){
+
+        phoneBox.classList.remove("hidden")
+
+        walletBox.classList.add("hidden")
+    }
+
+    else if(t == "USDT"){
+
+        walletBox.classList.remove("hidden")
+
+        phoneBox.classList.add("hidden")
+    }
+
+    else{
+
+        phoneBox.classList.add("hidden")
+
+        walletBox.classList.add("hidden")
+    }
+}
+
+// CALCULATE
+function calculate(){
+
+    let usd = parseFloat(
+        document.getElementById("amount_usd").value || 0
+    )
+
+    let receive =
+    usd - (usd * feePercent)
+
+    let t =
+    document.getElementById("type").value
+
+    if(t == "MTN"){
+
+        document.getElementById("receive").innerHTML =
+        (receive * rate).toFixed(2) + " RWF"
+    }
+
+    else{
+
+        document.getElementById("receive").innerHTML =
+        receive.toFixed(4) + " USDT"
+    }
+}
+
+// VALIDATE
+function validateWithdraw(){
+
+    let usd = parseFloat(
+        document.getElementById("amount_usd").value || 0
+    )
+
+    if(usd < 20){
+
+        alert("Minimum withdraw is $20")
+
+        return false
+    }
+
+    return true
+}
+
+// POPUP
+function popup(){
+
+    if(!validateWithdraw()){
+        return
+    }
+
+    let t =
+    document.getElementById("type").value
+
+    let usd =
+    parseFloat(
+        document.getElementById("amount_usd").value
+    )
+
+    let finalUsd =
+    usd - (usd * feePercent)
+
+    document.getElementById("popup")
+    .style.display = "flex"
+
+    // MTN
+    if(t == "MTN"){
+
+        let rwf =
+        (finalUsd * rate).toFixed(2)
+
+        document.getElementById("popupText").innerHTML = `
+
+        <h2>
+        MTN Withdraw
+        </h2>
+
+        <p>
+        Net Amount:
+        </p>
+
+        <h3 class="green">
+        ${rwf} RWF
+        </h3>
+
+        <p>
+        Fee deducted: 2%
+        </p>
+
+        <div class="attention">
+        ⚠ Make sure ID Names match the names registered on the MTN number.
+        </div>
+        `
+    }
+
+    // USDT
+    else{
+
+        document.getElementById("popupText").innerHTML = `
+
+        <h2>
+        USDT Withdraw
+        </h2>
+
+        <p>
+        Network: TRC20
+        </p>
+
+        <h3 class="green">
+        ${finalUsd.toFixed(4)} USDT
+        </h3>
+
+        <p>
+        Fee deducted: 2%
+        </p>
+        `
+    }
+}
+
+// CLOSE POPUP
+function closePopup(){
+
+    document.getElementById("popup")
+    .style.display = "none"
+}
+
+</script>
+
+</body>
+</html>
