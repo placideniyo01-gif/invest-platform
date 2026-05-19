@@ -1,0 +1,1 @@
+web: daphne invest_platform.asgi:application
