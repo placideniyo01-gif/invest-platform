@@ -180,3 +180,9 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 
 SESSION_COOKIE_AGE = 1209600
 SESSION_SAVE_EVERY_REQUEST = True
+
+import os
+
+STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
