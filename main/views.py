@@ -164,10 +164,13 @@ def register_view(request):
                         pass
 
                 # CREATE PROFILE
-                Profile.objects.create(
-                    user=user,
-                    referred_by=referrer
+                profile, created = Profile.objects.get_or_create(
+                    user=user
                 )
+
+                if referrer:
+                    profile.referred_by = referrer
+                    profile.save()
 
                 return redirect('login')
 
