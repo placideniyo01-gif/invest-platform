@@ -1,10 +1,7 @@
-from channels.generic.websocket import AsyncWebsocketConsumer
-import json
-
-class AdminConsumer(AsyncWebsocketConsumer):
+class BalanceConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
-        self.group_name = "admin_live"
+        self.group_name = f"user_{self.scope['user'].id}"
 
         await self.channel_layer.group_add(
             self.group_name,
@@ -19,5 +16,8 @@ class AdminConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-    async def send_update(self, event):
-        await self.send(text_data=json.dumps(event["data"]))
+    async def send_balance(self, event):
+        await self.send(text_data=json.dumps({
+            "balance": event["balance"],
+            "interest": event["interest"]
+        }))

@@ -707,6 +707,22 @@ socket.onerror = function(error){
     console.log("WebSocket Error", error)
 }
 
+function refreshBalance(){
+
+    fetch("/balance-api/")
+    .then(res => res.json())
+    .then(data => {
+
+        document.getElementById("balance").innerHTML =
+        "$" + parseFloat(data.balance).toFixed(6)
+
+        document.getElementById("interest").innerHTML =
+        parseFloat(data.interest).toFixed(6)
+    })
+}
+
+setInterval(refreshBalance, 3000)
+
 </script>
 
 </body>

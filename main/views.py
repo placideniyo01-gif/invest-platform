@@ -113,39 +113,21 @@ def login_view(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        if not email or not password:
+        user = authenticate(username=email, password=password)
 
-            error = "Fill all fields"
+        if user:
+            login(request, user)
+            return redirect("dashboard")
 
-        else:
+        error = "Invalid email or password"
 
-            user = authenticate(
-                request,
-                username=email,
-                password=password
-            )
-
-            if user is not None:
-
-                login(request, user)
-
-                return redirect("dashboard")
-
-            else:
-
-                error = "Invalid email or password"
-
-    return render(request, "login.html", {
-        "error": error
-    })
-
+    return render(request, "login.html", {"error": error})
 # =========================
 # REGISTER
 # =========================
 def register_view(request):
 
     error = ""
-
     ref_code = request.GET.get("ref")
 
     if request.method == "POST":
@@ -154,66 +136,38 @@ def register_view(request):
         password = request.POST.get("password")
         confirm = request.POST.get("confirm")
 
-        # CHECK EMPTY FIELDS
         if not email or not password or not confirm:
-
             error = "Fill all fields"
 
-        # PASSWORD MATCH
         elif password != confirm:
-
             error = "Passwords do not match"
 
-        # USER EXISTS
-        elif User.objects.filter(
-            username=email
-        ).exists():
-
+        elif User.objects.filter(username=email).exists():
             error = "Email already exists"
 
         else:
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=password
+            )
 
-            try:
+            # profile already created by signal
+            profile = Profile.objects.get(user=user)
 
-                # CREATE USER
-                user = User.objects.create_user(
-                    username=email,
-                    email=email,
-                    password=password
-                )
+            referrer = None
+            if ref_code:
+                try:
+                    referrer = User.objects.get(id=ref_code)
+                    profile.referred_by = referrer
+                    profile.save()
+                except:
+                    pass
 
-                # GET PROFILE CREATED BY SIGNAL
-                profile = Profile.objects.get(
-                    user=user
-                )
+            login(request, user)
+            return redirect("dashboard")
 
-                # OPTIONAL REFERRAL
-                if ref_code:
-
-                    try:
-
-                        referrer = User.objects.get(
-                            id=ref_code
-                        )
-
-                        profile.referred_by = referrer
-                        profile.save()
-
-                    except:
-                        pass
-
-                # AUTO LOGIN
-                login(request, user)
-
-                return redirect("dashboard")
-
-            except Exception as e:
-
-                error = str(e)
-
-    return render(request, "register.html", {
-        "error": error
-    })
+    return render(request, "register.html", {"error": error})
 # =========================
 # DASHBOARD
 # =========================
