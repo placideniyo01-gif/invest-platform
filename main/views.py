@@ -113,25 +113,31 @@ def login_view(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        user = authenticate(
-            username=email,
-            password=password
-        )
+        if not email or not password:
 
-        if user:
-
-            login(request, user)
-
-            return redirect("dashboard")
+            error = "Fill all fields"
 
         else:
 
-            error = "Invalid email or password"
+            user = authenticate(
+                request,
+                username=email,
+                password=password
+            )
+
+            if user is not None:
+
+                login(request, user)
+
+                return redirect("dashboard")
+
+            else:
+
+                error = "Invalid email or password"
 
     return render(request, "login.html", {
         "error": error
     })
-
 
 # =========================
 # REGISTER

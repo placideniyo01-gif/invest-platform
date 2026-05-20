@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+
     <title>Login</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
+
+        *{
+            box-sizing:border-box;
+        }
 
         body{
             margin:0;
@@ -17,16 +24,18 @@
         }
 
         .card{
-            width:350px;
+            width:100%;
+            max-width:380px;
             background:#1e293b;
             padding:40px;
             border-radius:20px;
-            box-shadow:0 0 20px rgba(0,0,0,0.5);
+            box-shadow:0 0 25px rgba(0,0,0,0.4);
         }
 
         h1{
             color:white;
             text-align:center;
+            margin-bottom:30px;
         }
 
         input{
@@ -37,6 +46,12 @@
             border-radius:10px;
             background:#334155;
             color:white;
+            outline:none;
+            font-size:15px;
+        }
+
+        input::placeholder{
+            color:#cbd5e1;
         }
 
         button{
@@ -49,6 +64,11 @@
             color:white;
             font-size:16px;
             cursor:pointer;
+            transition:0.3s;
+        }
+
+        button:hover{
+            background:#1d4ed8;
         }
 
         p{
@@ -62,32 +82,60 @@
             text-decoration:none;
         }
 
+        .error{
+            background:#7f1d1d;
+            color:white;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:15px;
+            text-align:center;
+        }
+
     </style>
 
 </head>
+
 <body>
 
     <div class="card">
 
         <h1>Login</h1>
 
-    
+        {% if error %}
+            <div class="error">
+                {{ error }}
+            </div>
+        {% endif %}
 
         <form method="POST">
 
             {% csrf_token %}
 
-            <input type="email" name="email" placeholder="Email">
+            <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                required
+            >
 
-            <input type="password" name="password" placeholder="Password">
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+            >
 
-            <button type="submit">Login</button>
+            <button type="submit">
+                Login
+            </button>
 
         </form>
 
         <p>
             Don't have account?
-            <a href="/register/">Create Account</a>
+            <a href="/register/">
+                Create Account
+            </a>
         </p>
 
     </div>

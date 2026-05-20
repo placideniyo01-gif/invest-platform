@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -7,14 +8,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 # =========================================
 
-SECRET_KEY = 'django-insecure-change-this-key'
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "django-secret-key"
+)
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "invest-platform-jwy9.onrender.com"
+    "invest-platform-jwy9.onrender.com",
 ]
 
 
@@ -23,6 +27,7 @@ ALLOWED_HOSTS = [
 # =========================================
 
 INSTALLED_APPS = [
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,12 +48,21 @@ INSTALLED_APPS = [
 # =========================================
 
 MIDDLEWARE = [
+
     'django.middleware.security.SecurityMiddleware',
+
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
+
     'django.middleware.common.CommonMiddleware',
+
     'django.middleware.csrf.CsrfViewMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
+
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -75,9 +89,13 @@ TEMPLATES = [
         'APP_DIRS': True,
 
         'OPTIONS': {
+
             'context_processors': [
+
                 'django.template.context_processors.request',
+
                 'django.contrib.auth.context_processors.auth',
+
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -93,7 +111,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 ASGI_APPLICATION = 'core.asgi.application'
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
 
 # =========================================
 # DATABASE
@@ -112,15 +129,19 @@ DATABASES = {
 # =========================================
 
 AUTH_PASSWORD_VALIDATORS = [
+
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
+
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
+
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
+
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
@@ -150,6 +171,12 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATICFILES_STORAGE = (
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+)
+
 
 # =========================================
 # DEFAULT AUTO FIELD
@@ -159,18 +186,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # =========================================
-# CHANNEL LAYERS (LIVE WEBSOCKET)
+# CHANNEL LAYERS
 # =========================================
 
 CHANNEL_LAYERS = {
+
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+
+        "BACKEND":
+        "channels.layers.InMemoryChannelLayer",
     },
 }
 
 
 # =========================================
-# LOGIN REDIRECTS
+# LOGIN
 # =========================================
 
 LOGIN_URL = '/login/'
@@ -183,10 +213,5 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 # =========================================
 
 SESSION_COOKIE_AGE = 1209600
+
 SESSION_SAVE_EVERY_REQUEST = True
-
-import os
-
-STATIC_URL = 'static/'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
