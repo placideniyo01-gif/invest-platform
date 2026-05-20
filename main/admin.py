@@ -2,7 +2,9 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import path
 from django.shortcuts import redirect
-from django.contrib import messages
+from django.http import HttpResponse
+from django.middleware.csrf import get_token
+from django.contrib.auth.models import User
 
 from .models import (
     Profile,
@@ -26,10 +28,6 @@ class ProfileAdmin(admin.ModelAdmin):
         'balance',
         'interest_balance',
         'referred_by'
-    )
-
-    search_fields = (
-        'user__username',
     )
 
 
@@ -64,7 +62,7 @@ class WithdrawAdmin(admin.ModelAdmin):
 
 
 # =========================
-# TRANSACTIONS
+# TRANSACTION ADMIN
 # =========================
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
@@ -79,7 +77,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 
 # =========================
-# NOTIFICATIONS
+# NOTIFICATION ADMIN
 # =========================
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
@@ -93,7 +91,7 @@ class NotificationAdmin(admin.ModelAdmin):
 
 
 # =========================
-# REFERRAL BONUS
+# REFERRAL BONUS ADMIN
 # =========================
 @admin.register(ReferralBonus)
 class ReferralBonusAdmin(admin.ModelAdmin):
@@ -107,7 +105,7 @@ class ReferralBonusAdmin(admin.ModelAdmin):
 
 
 # =========================
-# SUPPORT CHAT ADMIN
+# SUPPORT MESSAGE ADMIN
 # =========================
 @admin.register(SupportMessage)
 class SupportMessageAdmin(admin.ModelAdmin):
@@ -155,7 +153,7 @@ class SupportMessageAdmin(admin.ModelAdmin):
     reply_button.short_description = "Reply"
 
     # =====================
-    # CUSTOM URL
+    # CUSTOM URLS
     # =====================
     def get_urls(self):
 
@@ -170,6 +168,7 @@ class SupportMessageAdmin(admin.ModelAdmin):
                 ),
                 name='reply-support'
             ),
+
         ]
 
         return custom_urls + urls
@@ -177,147 +176,143 @@ class SupportMessageAdmin(admin.ModelAdmin):
     # =====================
     # REPLY VIEW
     # =====================
-   def reply_view(self, request, user_id):
+    def reply_view(self, request, user_id):
 
-       from django.contrib.auth.models import User
-       from django.http import HttpResponse
-       from django.middleware.csrf import get_token
+        user = User.objects.get(id=user_id)
 
-       user = User.objects.get(id=user_id)
+        if request.method == "POST":
 
-       if request.method == "POST":
+            message = request.POST.get("message")
 
-           message = request.POST.get("message")
+            if message:
 
-           if message:
+                SupportMessage.objects.create(
 
-               SupportMessage.objects.create(
+                    user=user,
+                    sender="admin",
+                    message=message,
+                    is_read=False
+                )
 
-                   user=user,
-                   sender="admin",
-                   message=message,
-                   is_read=False
-               )
+                return redirect(
+                    f"/admin/main/supportmessage/reply/{user.id}/"
+                )
 
-               return redirect(
-                   f"/admin/main/supportmessage/reply/{user.id}/"
-               )
+        chats = SupportMessage.objects.filter(
+            user=user
+        ).order_by("created_at")
 
-       chats = SupportMessage.objects.filter(
-        user=user
-       ).order_by("created_at")
+        csrf_token = get_token(request)
 
-       csrf_token = get_token(request)
+        html = f"""
 
-       html = f"""
+        <html>
 
-       <html>
+        <head>
 
-       <head>
+            <title>Support Reply</title>
 
-           <title>Support Reply</title>
+            <style>
 
-           <style>
+                body{{
+                    background:#0f172a;
+                    color:white;
+                    font-family:Arial;
+                    padding:30px;
+                }}
 
-               body{{
-                   background:#0f172a;
-                   color:white;
-                   font-family:Arial;
-                   padding:30px;
-               }}
+                .chat{{
+                    max-width:700px;
+                    margin:auto;
+                }}
 
-               .chat{{
-                   max-width:700px;
-                   margin:auto;
-               }}
+                .msg{{
+                    padding:15px;
+                    border-radius:12px;
+                    margin-bottom:15px;
+                }}
 
-               .msg{{
-                   padding:15px;
-                   border-radius:12px;
-                   margin-bottom:15px;
-               }}
+                .user{{
+                    background:#1e293b;
+                }}
 
-               .user{{
-                   background:#1e293b;
-               }}
+                .admin{{
+                    background:#2563eb;
+                }}
 
-               .admin{{
-                   background:#2563eb;
-               }}
+                textarea{{
+                    width:100%;
+                    height:120px;
+                    border:none;
+                    border-radius:10px;
+                    padding:15px;
+                    margin-top:20px;
+                }}
 
-               textarea{{
-                   width:100%;
-                   height:120px;
-                   border:none;
-                   border-radius:10px;
-                   padding:15px;
-                   margin-top:20px;
-               }}
+                button{{
+                    margin-top:15px;
+                    background:#22c55e;
+                    color:white;
+                    border:none;
+                    padding:15px 25px;
+                    border-radius:10px;
+                    cursor:pointer;
+                }}
 
-               button{{
-                   margin-top:15px;
-                   background:#22c55e;
-                   color:white;
-                   border:none;
-                   padding:15px 25px;
-                   border-radius:10px;
-                   cursor:pointer;
-               }}
+            </style>
 
-           </style>
+        </head>
 
-       </head>
+        <body>
 
-       <body>
+        <div class="chat">
 
-       <div class="chat">
+        <h1>Support Chat - {user.username}</h1>
 
-       <h1>Support Chat - {user.username}</h1>
+        """
 
-       """
+        for chat in chats:
 
-       for chat in chats:
+            html += f"""
 
-           html += f"""
+            <div class="msg {chat.sender}">
 
-           <div class="msg {chat.sender}">
+                <strong>{chat.sender.upper()}</strong>
 
-               <strong>{chat.sender.upper()}</strong>
+                <br><br>
 
-               <br><br>
+                {chat.message}
 
-               {chat.message}
+            </div>
 
-           </div>
+            """
 
-           """
+        html += f"""
 
-       html += f"""
+        <form method="POST">
 
-       <form method="POST">
+            <input
+                type="hidden"
+                name="csrfmiddlewaretoken"
+                value="{csrf_token}"
+            >
 
-           <input
-               type="hidden"
-               name="csrfmiddlewaretoken"
-               value="{csrf_token}"
-           >
+            <textarea
+                name="message"
+                placeholder="Write reply..."
+            ></textarea>
 
-           <textarea
-               name="message"
-               placeholder="Write reply..."
-           ></textarea>
+            <button type="submit">
+                Send Reply
+            </button>
 
-           <button type="submit">
-               Send Reply
-           </button>
+        </form>
 
-       </form>
+        </div>
 
-       </div>
+        </body>
+        </html>
 
-       </body>
-       </html>
+        """
 
-       """
-
-       return HttpResponse(html)
+        return HttpResponse(html)
