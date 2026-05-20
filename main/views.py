@@ -154,10 +154,17 @@ def register_view(request):
         password = request.POST.get("password")
         confirm = request.POST.get("confirm")
 
-        if password != confirm:
+        # CHECK EMPTY FIELDS
+        if not email or not password or not confirm:
+
+            error = "Fill all fields"
+
+        # PASSWORD MATCH
+        elif password != confirm:
 
             error = "Passwords do not match"
 
+        # USER EXISTS
         elif User.objects.filter(
             username=email
         ).exists():
@@ -166,42 +173,47 @@ def register_view(request):
 
         else:
 
-            # CREATE USER
-            user = User.objects.create_user(
-                username=email,
-                email=email,
-                password=password
-            )
+            try:
 
-            # REFERRER
-            referrer = None
+                # CREATE USER
+                user = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    password=password
+                )
 
-            if ref_code:
+                # REFERRER
+                referrer = None
 
-                try:
+                if ref_code:
 
-                    referrer = User.objects.get(
-                        id=ref_code
-                    )
+                    try:
 
-                except:
-                    pass
+                        referrer = User.objects.get(
+                            id=ref_code
+                        )
 
-            # CREATE PROFILE
-            Profile.objects.get_or_create(
-                user=user,
-                defaults={
-                    "referred_by": referrer
-                }
-            )
+                    except:
+                        pass
 
-            return redirect("login")
+                # CREATE PROFILE
+                Profile.objects.create(
+                    user=user,
+                    referred_by=referrer
+                )
+
+                # AUTO LOGIN
+                login(request, user)
+
+                return redirect("dashboard")
+
+            except Exception as e:
+
+                error = str(e)
 
     return render(request, "register.html", {
         "error": error
     })
-
-
 # =========================
 # DASHBOARD
 # =========================

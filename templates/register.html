@@ -4,9 +4,17 @@
 
     <title>Register</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
 
+        *{
+            box-sizing:border-box;
+        }
+
         body{
+            margin:0;
+            padding:0;
             background:#0f172a;
             display:flex;
             justify-content:center;
@@ -16,15 +24,18 @@
         }
 
         .card{
-            width:350px;
+            width:100%;
+            max-width:380px;
             background:#1e293b;
             padding:40px;
             border-radius:20px;
+            box-shadow:0 0 25px rgba(0,0,0,0.4);
         }
 
         h1{
             color:white;
             text-align:center;
+            margin-bottom:25px;
         }
 
         input{
@@ -35,6 +46,12 @@
             border-radius:10px;
             background:#334155;
             color:white;
+            font-size:15px;
+            outline:none;
+        }
+
+        input::placeholder{
+            color:#cbd5e1;
         }
 
         button{
@@ -46,43 +63,86 @@
             background:#2563eb;
             color:white;
             cursor:pointer;
+            font-size:16px;
+            transition:0.3s;
+        }
+
+        button:hover{
+            background:#1d4ed8;
         }
 
         p{
             color:white;
             text-align:center;
+            margin-top:20px;
         }
 
         a{
             color:#38bdf8;
+            text-decoration:none;
+        }
+
+        .error{
+            background:#7f1d1d;
+            color:white;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:15px;
+            text-align:center;
         }
 
     </style>
 
 </head>
+
 <body>
 
 <div class="card">
 
     <h1>Create Account</h1>
 
+    {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+    {% endif %}
+
     <form method="POST">
 
         {% csrf_token %}
 
-        <input type="email" name="email" placeholder="Email">
+        <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            required
+        >
 
-        <input type="password" name="password" placeholder="Password">
+        <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
+        >
 
-        <input type="password" name="confirm" placeholder="Confirm Password">
+        <input
+            type="password"
+            name="confirm"
+            placeholder="Confirm Password"
+            required
+        >
 
-        <button>Create Account</button>
+        <button type="submit">
+            Create Account
+        </button>
 
     </form>
 
     <p>
         I have existing account
-        <a href="/">Login</a>
+        <a href="/login/">
+            Login
+        </a>
     </p>
 
 </div>
