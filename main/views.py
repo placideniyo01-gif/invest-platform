@@ -36,34 +36,34 @@ def update_interest(profile):
     if seconds_passed <= 0:
         return
 
-    # BASE INTEREST
+    # BASE %
     total_percent = 5.0
 
     # ACTIVE REFERRALS
-    active_bonus_queryset = ReferralBonus.objects.filter(
+    active_bonuses = ReferralBonus.objects.filter(
         referrer=profile.user,
         expires_at__gt=now
     )
 
     active_bonus_percent = 0
 
-    for bonus in active_bonus_queryset:
+    for bonus in active_bonuses:
 
         active_bonus_percent += float(
             bonus.bonus_percent
         )
 
-    # EVERY 10 ACTIVE USERS = +0.5%
-    total_referrals = active_bonus_queryset.count()
+    # EXTRA BONUS EVERY 10 USERS
+    total_referrals = active_bonuses.count()
 
     groups_of_10 = total_referrals // 10
 
-    extra_bonus = groups_of_10 * 0.5
+    extra_group_bonus = groups_of_10 * 0.5
 
     total_percent += active_bonus_percent
-    total_percent += extra_bonus
+    total_percent += extra_group_bonus
 
-    # CALCULATE INTEREST
+    # CALCULATE
     daily_interest = (
         profile.balance * total_percent
     ) / 100
@@ -92,7 +92,9 @@ def get_live_rate():
 
         data = r.json()
 
-        return float(data["rates"]["RWF"])
+        return float(
+            data["rates"]["RWF"]
+        )
 
     except:
 
@@ -104,10 +106,12 @@ def get_live_rate():
 # =========================
 def login_view(request):
 
-    if request.method == 'POST':
+    error = ""
 
-        email = request.POST['email']
-        password = request.POST['password']
+    if request.method == "POST":
+
+        email = request.POST.get("email")
+        password = request.POST.get("password")
 
         user = authenticate(
             username=email,
@@ -118,9 +122,15 @@ def login_view(request):
 
             login(request, user)
 
-            return redirect('dashboard')
+            return redirect("dashboard")
 
-    return render(request, 'login.html')
+        else:
+
+            error = "Invalid email or password"
+
+    return render(request, "login.html", {
+        "error": error
+    })
 
 
 # =========================
@@ -128,53 +138,62 @@ def login_view(request):
 # =========================
 def register_view(request):
 
+    error = ""
+
     ref_code = request.GET.get("ref")
 
-    if request.method == 'POST':
+    if request.method == "POST":
 
-        email = request.POST['email']
-        password = request.POST['password']
-        confirm = request.POST['confirm']
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm = request.POST.get("confirm")
 
-        if password == confirm:
+        if password != confirm:
 
-            if not User.objects.filter(
-                username=email
-            ).exists():
+            error = "Passwords do not match"
 
-                # CREATE USER
-                user = User.objects.create_user(
-                    username=email,
-                    email=email,
-                    password=password
-                )
+        elif User.objects.filter(
+            username=email
+        ).exists():
 
-                # GET REFERRER
-                referrer = None
+            error = "Email already exists"
 
-                if ref_code:
+        else:
 
-                    try:
+            # CREATE USER
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=password
+            )
 
-                        referrer = User.objects.get(
-                            id=ref_code
-                        )
+            # REFERRER
+            referrer = None
 
-                    except:
-                        pass
+            if ref_code:
 
-                # CREATE PROFILE
-                profile, created = Profile.objects.get_or_create(
-                    user=user
-                )
+                try:
 
-                if referrer:
-                    profile.referred_by = referrer
-                    profile.save()
+                    referrer = User.objects.get(
+                        id=ref_code
+                    )
 
-                return redirect('login')
+                except:
+                    pass
 
-    return render(request, 'register.html')
+            # CREATE PROFILE
+            Profile.objects.get_or_create(
+                user=user,
+                defaults={
+                    "referred_by": referrer
+                }
+            )
+
+            return redirect("login")
+
+    return render(request, "register.html", {
+        "error": error
+    })
 
 
 # =========================
@@ -183,13 +202,11 @@ def register_view(request):
 @login_required
 def dashboard(request):
 
-    profile = Profile.objects.get(
+    profile, created = Profile.objects.get_or_create(
         user=request.user
     )
 
     update_interest(profile)
-
-    now = timezone.now()
 
     referral_bonuses = ReferralBonus.objects.filter(
         referrer=request.user
@@ -310,9 +327,9 @@ def claim_interest(request):
 
     return JsonResponse({
 
-        'balance': profile.balance,
+        "balance": profile.balance,
 
-        'interest': profile.interest_balance
+        "interest": profile.interest_balance
     })
 
 
@@ -332,20 +349,16 @@ def deposit(request):
         user=request.user
     )
 
-    if request.method == 'POST':
+    if request.method == "POST":
 
-        deposit_type = request.POST.get(
-            'type'
-        )
+        deposit_type = request.POST.get("type")
 
-        # =====================
         # MTN
-        # =====================
-        if deposit_type == 'MTN':
+        if deposit_type == "MTN":
 
             amount_rwf = float(
                 request.POST.get(
-                    'amount_rwf',
+                    "amount_rwf",
                     0
                 )
             )
@@ -361,38 +374,42 @@ def deposit(request):
                     "Minimum deposit is $20"
                 })
 
-            phone = request.POST.get(
-                'phone'
-            )
-
-            names = request.POST.get(
-                'names'
-            )
-
             Deposit.objects.create(
+
                 user=request.user,
-                deposit_type='MTN',
+
+                deposit_type="MTN",
+
                 amount_rwf=amount_rwf,
+
                 amount_usd=amount_usd,
-                phone=phone,
-                names=names,
+
+                phone=request.POST.get(
+                    "phone"
+                ),
+
+                names=request.POST.get(
+                    "names"
+                ),
+
                 status="Pending"
             )
 
             Transaction.objects.create(
+
                 user=request.user,
+
                 type="Deposit",
+
                 amount=amount_usd
             )
 
-        # =====================
         # USDT
-        # =====================
         else:
 
             amount_usdt = float(
                 request.POST.get(
-                    'amount_usdt',
+                    "amount_usdt",
                     0
                 )
             )
@@ -404,35 +421,41 @@ def deposit(request):
                     "Minimum deposit is $20"
                 })
 
-            wallet = request.POST.get(
-                'wallet'
-            )
-
             Deposit.objects.create(
+
                 user=request.user,
-                deposit_type='USDT',
+
+                deposit_type="USDT",
+
                 amount_usd=amount_usdt,
-                wallet=wallet,
+
+                wallet=request.POST.get(
+                    "wallet"
+                ),
+
                 status="Pending"
             )
 
             Transaction.objects.create(
+
                 user=request.user,
+
                 type="Deposit",
+
                 amount=amount_usdt
             )
 
-        return redirect('dashboard')
+        return redirect("dashboard")
 
     return render(
         request,
-        'deposit.html',
+        "deposit.html",
         {
-            'rate': round(
+            "rate": round(
                 display_rate,
                 2
             ),
-            'profile': profile
+            "profile": profile
         }
     )
 
@@ -453,25 +476,14 @@ def withdraw(request):
         user=request.user
     )
 
-    if request.method == 'POST':
-
-        withdraw_type = request.POST.get(
-            'type'
-        )
+    if request.method == "POST":
 
         amount_usd = float(
             request.POST.get(
-                'amount_usd',
+                "amount_usd",
                 0
             )
         )
-
-        if amount_usd < 20:
-
-            return JsonResponse({
-                "error":
-                "Minimum withdraw is $20"
-            })
 
         if amount_usd > profile.balance:
 
@@ -480,42 +492,55 @@ def withdraw(request):
                 "Insufficient balance"
             })
 
-        update_interest(profile)
+        withdraw_type = request.POST.get(
+            "type"
+        )
 
-        if withdraw_type == 'MTN':
+        if withdraw_type == "MTN":
 
             Withdraw.objects.create(
+
                 user=request.user,
-                withdraw_type='MTN',
+
+                withdraw_type="MTN",
+
                 amount_usd=amount_usd,
+
                 phone=request.POST.get(
-                    'phone'
+                    "phone"
                 ),
+
                 id_names=request.POST.get(
-                    'id_names'
+                    "id_names"
                 ),
+
                 status="Pending"
             )
 
         else:
 
             Withdraw.objects.create(
+
                 user=request.user,
-                withdraw_type='USDT',
+
+                withdraw_type="USDT",
+
                 amount_usd=amount_usd,
+
                 wallet=request.POST.get(
-                    'wallet'
+                    "wallet"
                 ),
+
                 status="Pending"
             )
 
-        return redirect('dashboard')
+        return redirect("dashboard")
 
     return render(
         request,
-        'withdraw.html',
+        "withdraw.html",
         {
-            'rate': round(
+            "rate": round(
                 display_rate,
                 2
             )
@@ -529,7 +554,7 @@ def withdraw(request):
 @login_required
 def transactions_view(request):
 
-    data = Transaction.objects.filter(
+    transactions = Transaction.objects.filter(
         user=request.user
     ).order_by("-created_at")
 
@@ -537,269 +562,8 @@ def transactions_view(request):
         request,
         "transactions.html",
         {
-            "transactions": data
+            "transactions": transactions
         }
-    )
-
-
-# =========================
-# PUSH LIVE BALANCE
-# =========================
-def push_balance_update(
-    user,
-    profile
-):
-
-    channel_layer = get_channel_layer()
-
-    if channel_layer is None:
-        return
-
-    async_to_sync(
-        channel_layer.group_send
-    )(
-        f"user_{user.id}",
-        {
-            "type": "send_balance",
-            "balance": float(
-                profile.balance
-            ),
-            "interest": float(
-                profile.interest_balance
-            )
-        }
-    )
-
-
-# =========================
-# RATE API
-# =========================
-def rate_api(request):
-
-    rate = 1300
-
-    try:
-
-        r = requests.get(
-            "https://api.exchangerate-api.com/v4/latest/USD"
-        )
-
-        data = r.json()
-
-        rate = data["rates"]["RWF"]
-
-    except:
-        pass
-
-    return JsonResponse({
-        "USD_RWF": rate
-    })
-
-
-# =========================
-# APPROVE DEPOSIT
-# =========================
-def approve_deposit(request, id):
-
-    d = Deposit.objects.get(id=id)
-
-    if d.status == "Pending":
-
-        profile = Profile.objects.get(
-            user=d.user
-        )
-
-        # UPDATE INTEREST FIRST
-        update_interest(profile)
-
-        # ADD BALANCE
-        profile.balance += d.amount_usd
-
-        profile.save()
-
-        # APPROVE
-        d.status = "Approved"
-
-        d.save()
-
-        # FIRST DEPOSIT ONLY
-        first_deposit = Deposit.objects.filter(
-            user=d.user,
-            status="Approved"
-        ).count() == 1
-
-        if first_deposit:
-
-            referred_profile = Profile.objects.get(
-                user=d.user
-            )
-
-            if referred_profile.referred_by:
-
-                referrer = (
-                    referred_profile.referred_by
-                )
-
-                # DEFAULT BONUS
-                bonus_percent = 0.1
-
-                # 250+
-                if d.amount_usd >= 250:
-
-                    bonus_percent = 0.2
-
-                # 500+
-                if d.amount_usd >= 500:
-
-                    bonus_percent = 0.3
-
-                ReferralBonus.objects.create(
-
-                    referrer=referrer,
-
-                    referred_user=d.user,
-
-                    deposit=d,
-
-                    bonus_percent=bonus_percent,
-
-                    expires_at=(
-                        timezone.now() +
-                        timedelta(days=30)
-                    )
-                )
-
-                Notification.objects.create(
-
-                    user=referrer,
-
-                    message=(
-                        f"You received "
-                        f"+{bonus_percent}% "
-                        f"bonus from "
-                        f"{d.user.username}"
-                    )
-                )
-
-        # NOTIFICATION
-        Notification.objects.create(
-            user=d.user,
-            message=(
-                f"Deposit of "
-                f"${d.amount_usd} approved"
-            )
-        )
-
-        # LIVE UPDATE
-        send_live_update({
-
-            "type": "deposit",
-
-            "message":
-            "Deposit Approved ✅",
-
-            "user":
-            d.user.username,
-
-            "amount":
-            float(d.amount_usd)
-        })
-
-        # PUSH BALANCE
-        push_balance_update(
-            d.user,
-            profile
-        )
-
-    return redirect(
-        '/admin/main/deposit/'
-    )
-
-
-# =========================
-# REJECT DEPOSIT
-# =========================
-def reject_deposit(request, id):
-
-    d = Deposit.objects.get(id=id)
-
-    d.status = "Rejected"
-
-    d.save()
-
-    return redirect(
-        '/admin/main/deposit/'
-    )
-
-
-# =========================
-# APPROVE WITHDRAW
-# =========================
-def approve_withdraw(request, id):
-
-    w = Withdraw.objects.get(id=id)
-
-    if w.status == "Pending":
-
-        profile = Profile.objects.get(
-            user=w.user
-        )
-
-        update_interest(profile)
-
-        profile.balance -= w.amount_usd
-
-        profile.save()
-
-        w.status = "Approved"
-
-        w.save()
-
-        Notification.objects.create(
-            user=w.user,
-            message=(
-                f"Withdraw of "
-                f"${w.amount_usd} approved"
-            )
-        )
-
-        send_live_update({
-
-            "type": "withdraw",
-
-            "message":
-            "Withdraw Approved ✅",
-
-            "user":
-            w.user.username,
-
-            "amount":
-            float(w.amount_usd)
-        })
-
-        push_balance_update(
-            w.user,
-            profile
-        )
-
-    return redirect(
-        '/admin/main/withdraw/'
-    )
-
-
-# =========================
-# REJECT WITHDRAW
-# =========================
-def reject_withdraw(request, id):
-
-    w = Withdraw.objects.get(id=id)
-
-    w.status = "Rejected"
-
-    w.save()
-
-    return redirect(
-        '/admin/main/withdraw/'
     )
 
 
@@ -845,9 +609,38 @@ def balance_api(request):
 
 
 # =========================
-# APPROVE DEPOSIT API
+# PUSH LIVE BALANCE
 # =========================
-def approve_deposit_api(request, id):
+def push_balance_update(
+    user,
+    profile
+):
+
+    channel_layer = get_channel_layer()
+
+    if channel_layer is None:
+        return
+
+    async_to_sync(
+        channel_layer.group_send
+    )(
+        f"user_{user.id}",
+        {
+            "type": "send_balance",
+            "balance": float(
+                profile.balance
+            ),
+            "interest": float(
+                profile.interest_balance
+            )
+        }
+    )
+
+
+# =========================
+# APPROVE DEPOSIT
+# =========================
+def approve_deposit(request, id):
 
     d = Deposit.objects.get(id=id)
 
@@ -857,6 +650,8 @@ def approve_deposit_api(request, id):
             user=d.user
         )
 
+        update_interest(profile)
+
         profile.balance += d.amount_usd
 
         profile.save()
@@ -865,12 +660,75 @@ def approve_deposit_api(request, id):
 
         d.save()
 
-        return JsonResponse({
-            "message":
-            "Approved successfully"
-        })
+        # FIRST APPROVED DEPOSIT
+        first_deposit = Deposit.objects.filter(
+            user=d.user,
+            status="Approved"
+        ).count() == 1
 
-    return JsonResponse({
-        "message":
-        "Already processed"
-    })
+        if first_deposit:
+
+            referred_profile = Profile.objects.get(
+                user=d.user
+            )
+
+            if referred_profile.referred_by:
+
+                referrer = (
+                    referred_profile.referred_by
+                )
+
+                bonus_percent = 0.1
+
+                if d.amount_usd >= 250:
+                    bonus_percent = 0.2
+
+                if d.amount_usd >= 500:
+                    bonus_percent = 0.3
+
+                ReferralBonus.objects.create(
+
+                    referrer=referrer,
+
+                    referred_user=d.user,
+
+                    deposit=d,
+
+                    bonus_percent=bonus_percent,
+
+                    expires_at=(
+                        timezone.now() +
+                        timedelta(days=30)
+                    )
+                )
+
+                Notification.objects.create(
+
+                    user=referrer,
+
+                    message=(
+                        f"You received "
+                        f"+{bonus_percent}% "
+                        f"bonus from "
+                        f"{d.user.username}"
+                    )
+                )
+
+        Notification.objects.create(
+
+            user=d.user,
+
+            message=(
+                f"Deposit of "
+                f"${d.amount_usd} approved"
+            )
+        )
+
+        push_balance_update(
+            d.user,
+            profile
+        )
+
+    return redirect(
+        "/admin/main/deposit/"
+    )
