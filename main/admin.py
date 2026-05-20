@@ -1,5 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.urls import path
+from django.shortcuts import redirect
+from django.contrib import messages
 
 from .models import (
     Profile,
@@ -12,17 +15,9 @@ from .models import (
 )
 
 
-# =========================================
-# ADMIN TITLES
-# =========================================
-admin.site.site_header = "Invest Platform Admin"
-admin.site.site_title = "Invest Platform"
-admin.site.index_title = "Admin Dashboard"
-
-
-# =========================================
+# =========================
 # PROFILE ADMIN
-# =========================================
+# =========================
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
 
@@ -38,9 +33,9 @@ class ProfileAdmin(admin.ModelAdmin):
     )
 
 
-# =========================================
+# =========================
 # DEPOSIT ADMIN
-# =========================================
+# =========================
 @admin.register(Deposit)
 class DepositAdmin(admin.ModelAdmin):
 
@@ -48,66 +43,14 @@ class DepositAdmin(admin.ModelAdmin):
         'user',
         'deposit_type',
         'amount_usd',
-        'show_contact',
-        'names',
         'status',
-        'approve_button',
-        'reject_button',
         'created_at'
     )
 
-    list_filter = (
-        'status',
-        'deposit_type'
-    )
 
-    search_fields = (
-        'user__username',
-        'phone',
-        'wallet'
-    )
-
-    def show_contact(self, obj):
-
-        if obj.deposit_type == "MTN":
-            return obj.phone
-
-        return obj.wallet
-
-    show_contact.short_description = "Phone / Wallet"
-
-    def approve_button(self, obj):
-
-        if obj.status == "Pending":
-
-            return format_html(
-                '<a style="background:green;color:white;padding:6px 12px;border-radius:6px;text-decoration:none;" href="/approve-deposit/{}/">Approve</a>',
-                obj.id
-            )
-
-        return format_html(
-            '<span style="color:green;font-weight:bold;">Approved</span>'
-        )
-
-    approve_button.short_description = "Approve"
-
-    def reject_button(self, obj):
-
-        if obj.status == "Pending":
-
-            return format_html(
-                '<a style="background:red;color:white;padding:6px 12px;border-radius:6px;text-decoration:none;" href="/reject-deposit/{}/">Reject</a>',
-                obj.id
-            )
-
-        return "-"
-
-    reject_button.short_description = "Reject"
-
-
-# =========================================
+# =========================
 # WITHDRAW ADMIN
-# =========================================
+# =========================
 @admin.register(Withdraw)
 class WithdrawAdmin(admin.ModelAdmin):
 
@@ -115,66 +58,14 @@ class WithdrawAdmin(admin.ModelAdmin):
         'user',
         'withdraw_type',
         'amount_usd',
-        'display_destination',
-        'id_names',
         'status',
-        'approve_button',
-        'reject_button',
         'created_at'
     )
 
-    list_filter = (
-        'status',
-        'withdraw_type'
-    )
 
-    search_fields = (
-        'user__username',
-        'phone',
-        'wallet'
-    )
-
-    def display_destination(self, obj):
-
-        if obj.withdraw_type == "MTN":
-            return obj.phone
-
-        return obj.wallet
-
-    display_destination.short_description = "Phone / Wallet"
-
-    def approve_button(self, obj):
-
-        if obj.status == "Pending":
-
-            return format_html(
-                '<a style="background:green;color:white;padding:6px 12px;border-radius:6px;text-decoration:none;" href="/approve-withdraw/{}/">Approve</a>',
-                obj.id
-            )
-
-        return format_html(
-            '<span style="color:green;font-weight:bold;">Approved</span>'
-        )
-
-    approve_button.short_description = "Approve"
-
-    def reject_button(self, obj):
-
-        if obj.status == "Pending":
-
-            return format_html(
-                '<a style="background:red;color:white;padding:6px 12px;border-radius:6px;text-decoration:none;" href="/reject-withdraw/{}/">Reject</a>',
-                obj.id
-            )
-
-        return "-"
-
-    reject_button.short_description = "Reject"
-
-
-# =========================================
-# TRANSACTION ADMIN
-# =========================================
+# =========================
+# TRANSACTIONS
+# =========================
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
 
@@ -186,19 +77,10 @@ class TransactionAdmin(admin.ModelAdmin):
         'created_at'
     )
 
-    list_filter = (
-        'type',
-        'status'
-    )
 
-    search_fields = (
-        'user__username',
-    )
-
-
-# =========================================
-# NOTIFICATION ADMIN
-# =========================================
+# =========================
+# NOTIFICATIONS
+# =========================
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
 
@@ -209,19 +91,10 @@ class NotificationAdmin(admin.ModelAdmin):
         'created_at'
     )
 
-    list_filter = (
-        'is_read',
-    )
 
-    search_fields = (
-        'user__username',
-        'message'
-    )
-
-
-# =========================================
-# REFERRAL BONUS ADMIN
-# =========================================
+# =========================
+# REFERRAL BONUS
+# =========================
 @admin.register(ReferralBonus)
 class ReferralBonusAdmin(admin.ModelAdmin):
 
@@ -229,42 +102,22 @@ class ReferralBonusAdmin(admin.ModelAdmin):
         'referrer',
         'referred_user',
         'bonus_percent',
-        'is_active_display',
-        'expires_at',
-        'created_at'
+        'expires_at'
     )
 
-    search_fields = (
-        'referrer__username',
-        'referred_user__username'
-    )
 
-    def is_active_display(self, obj):
-
-        if obj.is_active:
-
-            return format_html(
-                '<span style="background:green;color:white;padding:5px 10px;border-radius:10px;">ACTIVE</span>'
-            )
-
-        return format_html(
-            '<span style="background:orange;color:white;padding:5px 10px;border-radius:10px;">EXPIRED</span>'
-        )
-
-    is_active_display.short_description = "Status"
-
-
-# =========================================
-# SUPPORT MESSAGE ADMIN
-# =========================================
+# =========================
+# SUPPORT CHAT ADMIN
+# =========================
 @admin.register(SupportMessage)
 class SupportMessageAdmin(admin.ModelAdmin):
 
     list_display = (
         'user',
-        'sender_badge',
+        'sender',
         'short_message',
-        'message_status',
+        'is_read',
+        'reply_button',
         'created_at'
     )
 
@@ -278,57 +131,197 @@ class SupportMessageAdmin(admin.ModelAdmin):
         'message'
     )
 
-    ordering = (
-        '-created_at',
-    )
-
+    # =====================
+    # SHORT MESSAGE
+    # =====================
     def short_message(self, obj):
 
-        return obj.message[:60]
+        return obj.message[:50]
 
     short_message.short_description = "Message"
 
-    def sender_badge(self, obj):
-
-        if obj.sender == "admin":
-
-            return format_html(
-                '<span style="background:#2563eb;color:white;padding:5px 10px;border-radius:10px;font-weight:bold;">ADMIN</span>'
-            )
+    # =====================
+    # REPLY BUTTON
+    # =====================
+    def reply_button(self, obj):
 
         return format_html(
-            '<span style="background:#22c55e;color:white;padding:5px 10px;border-radius:10px;font-weight:bold;">USER</span>'
+
+            '<a style="background:#2563eb;color:white;padding:6px 12px;border-radius:8px;text-decoration:none;" href="/admin/reply-support/{}/">Reply</a>',
+
+            obj.user.id
         )
 
-    sender_badge.short_description = "Sender"
+    reply_button.short_description = "Reply"
 
-    def message_status(self, obj):
+    # =====================
+    # CUSTOM URL
+    # =====================
+    def get_urls(self):
 
-        if not obj.is_read and obj.sender == "user":
+        urls = super().get_urls()
 
-            return format_html(
-                '<span style="background:red;color:white;padding:5px 10px;border-radius:10px;font-weight:bold;">NEW MESSAGE</span>'
-            )
+        custom_urls = [
 
-        return format_html(
-            '<span style="background:green;color:white;padding:5px 10px;border-radius:10px;">READ</span>'
-        )
+            path(
+                'reply/<int:user_id>/',
+                self.admin_site.admin_view(
+                    self.reply_view
+                ),
+                name='reply-support'
+            ),
+        ]
 
-    message_status.short_description = "Status"
+        return custom_urls + urls
 
-    def save_model(
-        self,
-        request,
-        obj,
-        form,
-        change
-    ):
+    # =====================
+    # REPLY VIEW
+    # =====================
+    def reply_view(self, request, user_id):
 
-        obj.is_read = True
+        from django.contrib.auth.models import User
 
-        super().save_model(
-            request,
-            obj,
-            form,
-            change
-        )
+        user = User.objects.get(id=user_id)
+
+        if request.method == "POST":
+
+            message = request.POST.get("message")
+
+            if message:
+
+                SupportMessage.objects.create(
+
+                    user=user,
+                    sender="admin",
+                    message=message,
+                    is_read=False
+                )
+
+                messages.success(
+                    request,
+                    "Reply sent successfully"
+                )
+
+                return redirect(
+                    "/admin/main/supportmessage/"
+                )
+
+        chats = SupportMessage.objects.filter(
+            user=user
+        ).order_by("created_at")
+
+        html = """
+
+        <html>
+        <head>
+            <title>Support Reply</title>
+
+            <style>
+
+                body{
+                    background:#0f172a;
+                    color:white;
+                    font-family:Arial;
+                    padding:30px;
+                }
+
+                .chat{
+                    max-width:700px;
+                    margin:auto;
+                }
+
+                .msg{
+                    padding:15px;
+                    border-radius:12px;
+                    margin-bottom:15px;
+                }
+
+                .user{
+                    background:#1e293b;
+                }
+
+                .admin{
+                    background:#2563eb;
+                }
+
+                textarea{
+                    width:100%;
+                    height:120px;
+                    margin-top:20px;
+                    border:none;
+                    border-radius:10px;
+                    padding:15px;
+                }
+
+                button{
+                    margin-top:15px;
+                    background:#22c55e;
+                    color:white;
+                    border:none;
+                    padding:15px 25px;
+                    border-radius:10px;
+                    cursor:pointer;
+                }
+
+            </style>
+        </head>
+
+        <body>
+
+        <div class="chat">
+
+        <h1>Support Chat - """ + user.username + """</h1>
+
+        """
+
+        for chat in chats:
+
+            sender_class = chat.sender
+
+            html += f"""
+
+            <div class="msg {sender_class}">
+
+                <strong>{chat.sender.upper()}</strong>
+
+                <br><br>
+
+                {chat.message}
+
+            </div>
+
+            """
+
+            if chat.sender == "admin":
+
+                chat.is_read = True
+                chat.save()
+
+        html += """
+
+        <form method="POST">
+
+            """ + str(
+                admin.helpers.csrf_input_lazy(request)
+            ) + """
+
+            <textarea
+                name="message"
+                placeholder="Write reply..."
+            ></textarea>
+
+            <button type="submit">
+                Send Reply
+            </button>
+
+        </form>
+
+        </div>
+        </body>
+        </html>
+
+        """
+
+        from django.http import HttpResponse
+
+        return HttpResponse(html)
