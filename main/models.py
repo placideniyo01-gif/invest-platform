@@ -279,6 +279,9 @@ class SupportMessage(models.Model):
         default=False
     )
 
+    is_typing = models.BooleanField(
+        default=False
+    )
     created_at = models.DateTimeField(
         auto_now_add=True
     )
