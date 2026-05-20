@@ -21,35 +21,27 @@
         }
 
         .container{
-            max-width:550px;
+            max-width:600px;
             margin:auto;
             padding:20px;
         }
 
         .top-bar{
             display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:10px;
+            gap:12px;
             margin-bottom:20px;
         }
 
         .bell{
             flex:1;
             background:#2563eb;
-            padding:14px;
-            border-radius:14px;
+            padding:15px;
+            border-radius:16px;
             color:white;
             text-decoration:none;
             text-align:center;
             font-weight:bold;
-            font-size:14px;
             position:relative;
-            transition:.3s;
-        }
-
-        .bell:hover{
-            transform:translateY(-2px);
         }
 
         .badge{
@@ -66,15 +58,14 @@
             border-radius:50%;
             font-size:12px;
             font-weight:bold;
-            box-shadow:0 0 15px rgba(255,0,0,.6);
         }
 
         .balance{
             background:#1e293b;
             padding:35px 20px;
-            border-radius:25px;
+            border-radius:28px;
             text-align:center;
-            box-shadow:0 0 20px rgba(0,0,0,0.3);
+            box-shadow:0 0 25px rgba(0,0,0,0.3);
         }
 
         .balance h1{
@@ -111,6 +102,18 @@
             transform:scale(1.03);
         }
 
+        .contact-btn{
+            display:block;
+            margin-top:20px;
+            background:#1877f2;
+            padding:18px;
+            border-radius:18px;
+            text-align:center;
+            text-decoration:none;
+            color:white;
+            font-weight:bold;
+        }
+
         .interest{
             margin-top:25px;
             background:#1e293b;
@@ -123,14 +126,13 @@
         .daily-interest{
             color:#22c55e;
             font-weight:bold;
-            margin-bottom:15px;
-            line-height:1.8;
+            margin-bottom:18px;
+            line-height:1.9;
         }
 
         .interest h2{
-            font-size:30px;
+            font-size:32px;
             margin-top:10px;
-            word-break:break-word;
         }
 
         .claim-btn{
@@ -144,29 +146,6 @@
             font-size:16px;
             font-weight:bold;
             cursor:pointer;
-            transition:.3s;
-        }
-
-        .claim-btn:hover{
-            opacity:.9;
-            transform:scale(1.01);
-        }
-
-        .contact-btn{
-            display:block;
-            margin-top:20px;
-            background:#1877f2;
-            padding:18px;
-            border-radius:18px;
-            text-align:center;
-            text-decoration:none;
-            color:white;
-            font-weight:bold;
-            transition:.3s;
-        }
-
-        .contact-btn:hover{
-            transform:translateY(-2px);
         }
 
         .referral-box{
@@ -174,13 +153,12 @@
             background:#1e293b;
             padding:25px;
             border-radius:25px;
-            box-shadow:0 0 20px rgba(0,0,0,0.3);
         }
 
         .referral-title{
             color:#22c55e;
             margin-bottom:10px;
-            font-size:24px;
+            font-size:25px;
         }
 
         .referral-text{
@@ -202,7 +180,6 @@
             color:#60a5fa;
             text-decoration:none;
             word-break:break-all;
-            font-size:14px;
         }
 
         .copy-btn{
@@ -298,8 +275,9 @@
             display:none;
             z-index:999999;
             font-weight:bold;
-            box-shadow:0 0 20px rgba(0,0,0,0.4);
         }
+
+        /* MODAL */
 
         #welcomeModal{
             position:fixed;
@@ -308,25 +286,24 @@
             width:100%;
             height:100%;
             background:rgba(0,0,0,0.88);
-            display:flex;
-            justify-content:center;
-            align-items:center;
             z-index:99999;
-            padding:20px;
-            overflow:auto;
+            overflow-y:auto;
+            padding:30px 15px;
         }
 
         .modal-box{
             background:#1e293b;
             width:100%;
             max-width:650px;
+            margin:auto;
             padding:35px;
             border-radius:25px;
-            animation:popup .3s ease;
             border:1px solid #334155;
+            animation:popup .3s ease;
         }
 
         @keyframes popup{
+
             from{
                 transform:scale(.8);
                 opacity:0;
@@ -339,15 +316,14 @@
         }
 
         .modal-box h1{
-            margin-bottom:20px;
             color:#22c55e;
+            margin-bottom:20px;
             text-align:center;
-            font-size:30px;
         }
 
         .modal-box p{
+            line-height:2;
             color:#cbd5e1;
-            line-height:1.9;
             font-size:15px;
         }
 
@@ -375,11 +351,11 @@
             }
 
             .balance h1{
-                font-size:32px;
+                font-size:34px;
             }
 
             .interest h2{
-                font-size:24px;
+                font-size:25px;
             }
 
             .modal-box{
@@ -405,196 +381,106 @@
 
         <p>
 
-            Welcome to our investment platform 🚀
+            Your account is currently inactive because you have not yet made your first deposit.
 
             <br><br>
 
-            Your account is currently inactive because
-            no deposit has been made yet.
+            To activate your account and start earning daily profits automatically, you need to make a deposit using MTN Mobile Money or USDT.
 
             <br><br>
 
-            To fully activate your account and begin
-            earning daily profits automatically,
-            you must first make a deposit.
+            After your deposit is approved by admin, your account becomes active instantly and your balance begins generating interest every second.
 
             <br><br>
 
-            Once your deposit is approved:
+            🔥 BASE DAILY PROFIT:
 
             <br><br>
 
-            ✅ Your account becomes ACTIVE
+            Every active user receives a fixed 5% daily interest on their account balance.
+
+            <br><br>
+
+            Example:
 
             <br>
 
-            ✅ Daily interest starts automatically
-
-            <br>
-
-            ✅ Referral bonuses become available
-
-            <br>
-
-            ✅ You can withdraw profits anytime
+            If your balance is $100, your account generates approximately $5 profit every 24 hours automatically.
 
             <br><br>
 
-            ------------------------------------
+            💎 REFERRAL BONUS SYSTEM:
 
             <br><br>
 
-            🔥 HOW REFERRAL SYSTEM WORKS
+            Invite friends using your personal referral link.
 
             <br><br>
 
-            Every user receives a unique referral link.
+            When someone creates an account using your link and makes a deposit, your account receives additional bonus interest percentage.
 
             <br><br>
 
-            You can share your link with friends,
-            social media audiences,
-            WhatsApp groups,
-            Telegram communities,
-            or anyone interested in investing.
+            BONUS LEVELS:
 
             <br><br>
 
-            When someone registers using your referral link
-            and makes a deposit,
-            your account receives an EXTRA
-            daily interest bonus automatically.
-
-            <br><br>
-
-            The more active referrals you have,
-            the higher your total daily earnings become.
-
-            <br><br>
-
-            ------------------------------------
-
-            <br><br>
-
-            💎 BONUS LEVELS
-
-            <br><br>
-
-            🥉 Referral deposit of $20 or more
-
-            <br>
-
+            💰 Deposit $20 or more
             → You receive +0.1% extra daily interest
 
             <br><br>
 
-            🥈 Referral deposit of $250 or more
-
-            <br>
-
+            💰 Deposit $250 or more
             → You receive +0.2% extra daily interest
 
             <br><br>
 
-            🥇 Referral deposit of $500 or more
-
-            <br>
-
+            💰 Deposit $500 or more
             → You receive +0.3% extra daily interest
 
             <br><br>
 
-            ------------------------------------
+            Example:
 
             <br><br>
 
-            📈 EXAMPLE
-
-            <br><br>
-
-            Your base daily interest is 5%.
-
-            <br><br>
-
-            If you have:
+            Your normal daily rate is 5%.
 
             <br>
 
-            +0.1%
+            If referrals give you +0.3% bonus, your total becomes 5.3% daily.
+
+            <br><br>
+
+            ⏳ BONUS DURATION:
+
+            <br><br>
+
+            Referral bonuses are temporary.
 
             <br>
 
-            +0.2%
+            Every referral bonus remains active for a limited period before expiring automatically.
+
+            <br><br>
+
+            When bonus expires:
 
             <br>
 
-            +0.3%
-
-            <br><br>
-
-            Your total daily rate becomes:
-
-            <br><br>
-
-            🔥 5.6% DAILY PROFIT
-
-            <br><br>
-
-            Which means your account grows faster every day.
-
-            <br><br>
-
-            ------------------------------------
-
-            <br><br>
-
-            ⏳ BONUS DURATION
-
-            <br><br>
-
-            Every referral bonus stays ACTIVE
-            for 30 days from the date
-            the referral deposit is approved.
-
-            <br><br>
-
-            After 30 days:
-
-            <br><br>
-
-            ⚠️ The bonus expires automatically
+            ✔ your referral stays counted
 
             <br>
 
-            ⚠️ Your total daily percentage decreases
+            ✔ your profit history remains safe
+
+            <br>
+
+            ✖ but extra bonus percentage is removed automatically
 
             <br><br>
 
-            To maintain high earnings,
-            continue inviting active users regularly.
-
-            <br><br>
-
-            ------------------------------------
-
-            <br><br>
-
-            🚨 IMPORTANT NOTICE
-
-            <br><br>
-
-            Referral bonuses are only activated
-            after deposits are verified and approved by admin.
-
-            <br><br>
-
-            Fake accounts or unpaid referrals
-            do not generate bonuses.
-
-            <br><br>
-
-            Start by making your first deposit today
-            and begin growing your profits 🚀
+            You can keep increasing your earnings by inviting more active investors.
 
         </p>
 
@@ -622,11 +508,9 @@
             💬 Messages
 
             {% if unread_messages > 0 %}
-
             <span class="badge">
                 {{ unread_messages }}
             </span>
-
             {% endif %}
 
         </a>
@@ -643,9 +527,7 @@
             ${{ profile.balance|floatformat:6 }}
         </h1>
 
-        <p>
-            Main Balance
-        </p>
+        <p>Main Balance</p>
 
     </div>
 
@@ -662,14 +544,14 @@
     </div>
 
     <a href="/support/" class="contact-btn">
-        💬 Contact Support
+        💬 Contact Us
     </a>
 
     <div class="interest">
 
         <p class="daily-interest">
 
-            🔥 Base Interest: 5%
+            🔥 5% Base Interest
 
             <br>
 
@@ -678,7 +560,7 @@
 
             <br>
 
-            💎 Total Daily Interest:
+            💎 Total Daily Rate:
             {{ total_daily_percent }}%
 
         </p>
@@ -706,161 +588,6 @@
 
     </div>
 
-    <div class="referral-box">
-
-        <h2 class="referral-title">
-            🎁 Referral Program
-        </h2>
-
-        <p class="referral-text">
-
-            Share your referral link and earn extra
-            daily interest bonuses whenever invited users
-            make active deposits.
-
-        </p>
-
-        <div class="referral-link-box">
-
-            <a
-                id="referralLink"
-                class="referral-link"
-            >
-                {{ referral_link }}
-            </a>
-
-        </div>
-
-        <button
-            class="copy-btn"
-            onclick="copyReferral()"
-        >
-            Copy Referral Link
-        </button>
-
-        <div class="ref-stats">
-
-            <div class="stat-card">
-
-                <h3>
-                    👥 Total Referrals
-                </h3>
-
-                <p>
-                    {{ total_referrals }}
-                </p>
-
-            </div>
-
-            <div class="stat-card">
-
-                <h3>
-                    🚀 Active Bonus
-                </h3>
-
-                <p>
-                    +{{ active_bonus_percent }}%
-                </p>
-
-            </div>
-
-            <div class="stat-card">
-
-                <h3>
-                    🔒 Locked Bonus
-                </h3>
-
-                <p>
-                    +{{ locked_bonus_percent }}%
-                </p>
-
-            </div>
-
-            <div class="stat-card">
-
-                <h3>
-                    💰 Referral Profit
-                </h3>
-
-                <p>
-                    ${{ referral_profit }}
-                </p>
-
-            </div>
-
-        </div>
-
-        <div class="referral-users">
-
-            <h3 class="users-title">
-                👥 Your Referral Team
-            </h3>
-
-            {% for bonus in referral_bonuses %}
-
-            <div class="ref-user">
-
-                <div>
-
-                    <strong>
-                        {{ bonus.referred_user.username }}
-                    </strong>
-
-                    <br>
-
-                    <small>
-                        Deposit:
-                        ${{ bonus.deposit.amount_usd }}
-                    </small>
-
-                    <br>
-
-                    <small>
-                        Bonus:
-                        +{{ bonus.bonus_percent }}%
-                    </small>
-
-                    <br>
-
-                    <small>
-                        Expire:
-                        {{ bonus.expires_at|date:"M d, Y" }}
-                    </small>
-
-                </div>
-
-                <div>
-
-                    {% if bonus.is_active %}
-
-                    <span class="active-badge">
-                        ACTIVE
-                    </span>
-
-                    {% else %}
-
-                    <span class="locked-badge">
-                        LOCKED
-                    </span>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
-            {% empty %}
-
-            <p class="empty-text">
-                No referrals yet
-            </p>
-
-            {% endfor %}
-
-        </div>
-
-    </div>
-
 </div>
 
 <script>
@@ -876,6 +603,8 @@ function closeModal(){
     }
 }
 
+
+// VALUES
 let balance =
 parseFloat("{{ profile.balance|default:0 }}") || 0
 
@@ -886,6 +615,7 @@ let activeBonus =
 parseFloat("{{ active_bonus_percent|default:0 }}") || 0
 
 
+// LIVE INTEREST
 function updateInterest(){
 
     let totalPercent =
@@ -903,6 +633,7 @@ function updateInterest(){
 setInterval(updateInterest,1000)
 
 
+// CLAIM
 function claimInterest(){
 
     fetch('/claim-interest/')
@@ -930,6 +661,7 @@ function claimInterest(){
 }
 
 
+// COPY REFERRAL
 function copyReferral(){
 
     let text =
@@ -944,6 +676,7 @@ function copyReferral(){
 }
 
 
+// NOTIFICATION
 function showNotification(msg){
 
     let n =
@@ -961,6 +694,7 @@ function showNotification(msg){
 }
 
 
+// AUTO REFRESH
 function refreshBalance(){
 
     fetch("/balance-api/")
