@@ -257,17 +257,20 @@ class ReferralBonus(models.Model):
 # =========================
 class SupportMessage(models.Model):
 
+    SENDER_CHOICES = (
+        ("user", "User"),
+        ("admin", "Admin"),
+    )
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE
     )
 
     sender = models.CharField(
-        max_length=20,
-        choices=(
-            ("user", "user"),
-            ("admin", "admin"),
-        )
+        max_length=10,
+        choices=SENDER_CHOICES,
+        default="user"
     )
 
     message = models.TextField()
@@ -282,13 +285,4 @@ class SupportMessage(models.Model):
 
     def __str__(self):
 
-        return f"{self.user} - {self.sender}"
-        
-    @property
-    def is_active(self):
-
-        return timezone.now() < self.expires_at
-
-    def __str__(self):
-
-        return f"{self.referrer} earned {self.bonus_percent}%"
+        return f"{self.user.username} - {self.sender}"
