@@ -182,9 +182,12 @@ def register_view(request):
                     password=password
                 )
 
-                # REFERRER
-                referrer = None
+                # GET PROFILE CREATED BY SIGNAL
+                profile = Profile.objects.get(
+                    user=user
+                )
 
+                # OPTIONAL REFERRAL
                 if ref_code:
 
                     try:
@@ -193,14 +196,11 @@ def register_view(request):
                             id=ref_code
                         )
 
+                        profile.referred_by = referrer
+                        profile.save()
+
                     except:
                         pass
-
-                # CREATE PROFILE
-                Profile.objects.create(
-                    user=user,
-                    referred_by=referrer
-                )
 
                 # AUTO LOGIN
                 login(request, user)
