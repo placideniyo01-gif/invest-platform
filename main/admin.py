@@ -177,151 +177,147 @@ class SupportMessageAdmin(admin.ModelAdmin):
     # =====================
     # REPLY VIEW
     # =====================
-    def reply_view(self, request, user_id):
+   def reply_view(self, request, user_id):
 
-        from django.contrib.auth.models import User
+       from django.contrib.auth.models import User
+       from django.http import HttpResponse
+       from django.middleware.csrf import get_token
 
-        user = User.objects.get(id=user_id)
+       user = User.objects.get(id=user_id)
 
-        if request.method == "POST":
+       if request.method == "POST":
 
-            message = request.POST.get("message")
+           message = request.POST.get("message")
 
-            if message:
+           if message:
 
-                SupportMessage.objects.create(
+               SupportMessage.objects.create(
 
-                    user=user,
-                    sender="admin",
-                    message=message,
-                    is_read=False
-                )
+                   user=user,
+                   sender="admin",
+                   message=message,
+                   is_read=False
+               )
 
-                messages.success(
-                    request,
-                    "Reply sent successfully"
-                )
+               return redirect(
+                   f"/admin/main/supportmessage/reply/{user.id}/"
+               )
 
-                return redirect(
-                    "/admin/main/supportmessage/"
-                )
+       chats = SupportMessage.objects.filter(
+        user=user
+       ).order_by("created_at")
 
-        chats = SupportMessage.objects.filter(
-            user=user
-        ).order_by("created_at")
+       csrf_token = get_token(request)
 
-        html = """
+       html = f"""
 
-        <html>
-        <head>
-            <title>Support Reply</title>
+       <html>
 
-            <style>
+       <head>
 
-                body{
-                    background:#0f172a;
-                    color:white;
-                    font-family:Arial;
-                    padding:30px;
-                }
+           <title>Support Reply</title>
 
-                .chat{
-                    max-width:700px;
-                    margin:auto;
-                }
+           <style>
 
-                .msg{
-                    padding:15px;
-                    border-radius:12px;
-                    margin-bottom:15px;
-                }
+               body{{
+                   background:#0f172a;
+                   color:white;
+                   font-family:Arial;
+                   padding:30px;
+               }}
 
-                .user{
-                    background:#1e293b;
-                }
+               .chat{{
+                   max-width:700px;
+                   margin:auto;
+               }}
 
-                .admin{
-                    background:#2563eb;
-                }
+               .msg{{
+                   padding:15px;
+                   border-radius:12px;
+                   margin-bottom:15px;
+               }}
 
-                textarea{
-                    width:100%;
-                    height:120px;
-                    margin-top:20px;
-                    border:none;
-                    border-radius:10px;
-                    padding:15px;
-                }
+               .user{{
+                   background:#1e293b;
+               }}
 
-                button{
-                    margin-top:15px;
-                    background:#22c55e;
-                    color:white;
-                    border:none;
-                    padding:15px 25px;
-                    border-radius:10px;
-                    cursor:pointer;
-                }
+               .admin{{
+                   background:#2563eb;
+               }}
 
-            </style>
-        </head>
+               textarea{{
+                   width:100%;
+                   height:120px;
+                   border:none;
+                   border-radius:10px;
+                   padding:15px;
+                   margin-top:20px;
+               }}
 
-        <body>
+               button{{
+                   margin-top:15px;
+                   background:#22c55e;
+                   color:white;
+                   border:none;
+                   padding:15px 25px;
+                   border-radius:10px;
+                   cursor:pointer;
+               }}
 
-        <div class="chat">
+           </style>
 
-        <h1>Support Chat - """ + user.username + """</h1>
+       </head>
 
-        """
+       <body>
 
-        for chat in chats:
+       <div class="chat">
 
-            sender_class = chat.sender
+       <h1>Support Chat - {user.username}</h1>
 
-            html += f"""
+       """
 
-            <div class="msg {sender_class}">
+       for chat in chats:
 
-                <strong>{chat.sender.upper()}</strong>
+           html += f"""
 
-                <br><br>
+           <div class="msg {chat.sender}">
 
-                {chat.message}
+               <strong>{chat.sender.upper()}</strong>
 
-            </div>
+               <br><br>
 
-            """
+               {chat.message}
 
-            if chat.sender == "admin":
+           </div>
 
-                chat.is_read = True
-                chat.save()
+           """
 
-        html += """
+       html += f"""
 
-        <form method="POST">
+       <form method="POST">
 
-            """ + str(
-                admin.helpers.csrf_input_lazy(request)
-            ) + """
+           <input
+               type="hidden"
+               name="csrfmiddlewaretoken"
+               value="{csrf_token}"
+           >
 
-            <textarea
-                name="message"
-                placeholder="Write reply..."
-            ></textarea>
+           <textarea
+               name="message"
+               placeholder="Write reply..."
+           ></textarea>
 
-            <button type="submit">
-                Send Reply
-            </button>
+           <button type="submit">
+               Send Reply
+           </button>
 
-        </form>
+       </form>
 
-        </div>
-        </body>
-        </html>
+       </div>
 
-        """
+       </body>
+       </html>
 
-        from django.http import HttpResponse
+       """
 
-        return HttpResponse(html)
+       return HttpResponse(html)
