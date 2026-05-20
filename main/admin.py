@@ -147,7 +147,7 @@ class SupportMessageAdmin(admin.ModelAdmin):
 
         return format_html(
 
-            '<a style="background:#2563eb;color:white;padding:6px 12px;border-radius:8px;text-decoration:none;" href="/admin/reply-support/{}/">Reply</a>',
+            '<a style="background:#2563eb;color:white;padding:6px 12px;border-radius:8px;text-decoration:none;" href="/admin/main/supportmessage/reply/{}/">Reply</a>',
 
             obj.user.id
         )
