@@ -30,4 +30,9 @@ urlpatterns = [
     name='balance_api'
 ),
     path("api/approve-deposit/<int:id>/", views.approve_deposit_api),
+    path(
+    "unread-support-count/",
+    views.unread_support_count
+),
+
 ]   

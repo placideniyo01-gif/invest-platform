@@ -238,7 +238,7 @@ def dashboard(request):
         "profile": profile,
 
         "unread_messages": unread_messages,
-        
+
         "referral_bonuses": referral_bonuses,
 
         "active_bonus_percent": round(
@@ -841,21 +841,34 @@ def support_view(request):
         user=request.user
     ).order_by("created_at")
 
-    # MARK ADMIN MSG AS READ
-    SupportMessage.objects.filter(
-        user=request.user,
-        sender="admin",
-        is_read=False
-    ).update(is_read=True)
-
-    # UNREAD COUNT
+    # COUNT BEFORE READ
     unread_count = SupportMessage.objects.filter(
         user=request.user,
         sender="admin",
         is_read=False
     ).count()
 
+    # MARK AS READ
+    SupportMessage.objects.filter(
+        user=request.user,
+        sender="admin",
+        is_read=False
+    ).update(is_read=True)
+
     return render(request, "support.html", {
         "messages": messages,
         "unread_count": unread_count
+    })
+    
+@login_required
+def unread_support_count(request):
+
+    count = SupportMessage.objects.filter(
+        user=request.user,
+        sender="admin",
+        is_read=False
+    ).count()
+
+    return JsonResponse({
+        "count": count
     })
