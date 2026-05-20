@@ -732,3 +732,106 @@ def approve_deposit(request, id):
     return redirect(
         "/admin/main/deposit/"
     )
+
+# =========================
+# REJECT DEPOSIT
+# =========================
+def reject_deposit(request, id):
+
+    d = Deposit.objects.get(id=id)
+
+    d.status = "Rejected"
+
+    d.save()
+
+    Notification.objects.create(
+        user=d.user,
+        message=f"Deposit of ${d.amount_usd} rejected"
+    )
+
+    return redirect('/admin/main/deposit/')
+
+
+# =========================
+# APPROVE WITHDRAW
+# =========================
+def approve_withdraw(request, id):
+
+    w = Withdraw.objects.get(id=id)
+
+    if w.status == "Pending":
+
+        profile = Profile.objects.get(
+            user=w.user
+        )
+
+        update_interest(profile)
+
+        profile.balance -= w.amount_usd
+
+        profile.save()
+
+        w.status = "Approved"
+
+        w.save()
+
+        Notification.objects.create(
+            user=w.user,
+            message=f"Withdraw of ${w.amount_usd} approved"
+        )
+
+        push_balance_update(
+            w.user,
+            profile
+        )
+
+    return redirect('/admin/main/withdraw/')
+
+
+# =========================
+# REJECT WITHDRAW
+# =========================
+def reject_withdraw(request, id):
+
+    w = Withdraw.objects.get(id=id)
+
+    w.status = "Rejected"
+
+    w.save()
+
+    Notification.objects.create(
+        user=w.user,
+        message=f"Withdraw of ${w.amount_usd} rejected"
+    )
+
+    return redirect('/admin/main/withdraw/')
+
+
+# =========================
+# APPROVE DEPOSIT API
+# =========================
+def approve_deposit_api(request, id):
+
+    d = Deposit.objects.get(id=id)
+
+    if d.status == "Pending":
+
+        profile = Profile.objects.get(
+            user=d.user
+        )
+
+        profile.balance += d.amount_usd
+
+        profile.save()
+
+        d.status = "Approved"
+
+        d.save()
+
+        return JsonResponse({
+            "message": "Approved successfully"
+        })
+
+    return JsonResponse({
+        "message": "Already processed"
+    })
