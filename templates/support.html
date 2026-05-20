@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Support Chat</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+
+        body{
+            margin:0;
+            background:#0f172a;
+            font-family:Arial;
+            color:white;
+        }
+
+        .container{
+            max-width:600px;
+            margin:auto;
+            height:100vh;
+            display:flex;
+            flex-direction:column;
+        }
+
+        .top{
+            background:#1e293b;
+            padding:20px;
+            text-align:center;
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .chat-box{
+            flex:1;
+            overflow-y:auto;
+            padding:20px;
+        }
+
+        .message{
+            padding:15px;
+            border-radius:15px;
+            margin-bottom:15px;
+            max-width:80%;
+            line-height:1.5;
+        }
+
+        .user{
+            background:#2563eb;
+            margin-left:auto;
+        }
+
+        .admin{
+            background:#334155;
+        }
+
+        .time{
+            font-size:12px;
+            margin-top:8px;
+            opacity:.7;
+        }
+
+        .form-box{
+            padding:15px;
+            background:#1e293b;
+            display:flex;
+            gap:10px;
+        }
+
+        input{
+            flex:1;
+            padding:15px;
+            border:none;
+            border-radius:12px;
+            background:#334155;
+            color:white;
+        }
+
+        button{
+            border:none;
+            padding:15px 20px;
+            border-radius:12px;
+            background:#22c55e;
+            color:white;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .empty{
+            text-align:center;
+            margin-top:50px;
+            color:#94a3b8;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="top">
+        💬 Support Chat
+    </div>
+
+    <div class="chat-box">
+
+        {% for msg in messages %}
+
+            <div class="message {{ msg.sender }}">
+
+                {{ msg.message }}
+
+                <div class="time">
+                    {{ msg.created_at }}
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <div class="empty">
+                No messages yet
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    <form method="POST" class="form-box">
+
+        {% csrf_token %}
+
+        <input
+            type="text"
+            name="message"
+            placeholder="Type message..."
+            required
+        >
+
+        <button type="submit">
+            Send
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

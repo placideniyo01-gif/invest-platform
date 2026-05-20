@@ -296,6 +296,91 @@
 
 <body>
 
+{% if profile.balance <= 0 %}
+
+<div id="welcomeModal" style="
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+">
+
+    <div style="
+        background:#1e293b;
+        width:90%;
+        max-width:500px;
+        padding:30px;
+        border-radius:25px;
+        color:white;
+        text-align:center;
+    ">
+
+        <h1 style="margin-bottom:20px;">
+            🚀 Welcome
+        </h1>
+
+        <p style="
+            line-height:1.8;
+            color:#cbd5e1;
+        ">
+
+            Your account is not active yet.
+
+            <br><br>
+
+            To activate your account,
+            you must make a deposit.
+
+            <br><br>
+
+            🔥 Referral Bonuses:
+
+            <br><br>
+
+            $20+ Deposit → +0.1%
+
+            <br>
+
+            $250+ Deposit → +0.2%
+
+            <br>
+
+            $500+ Deposit → +0.3%
+
+            <br><br>
+
+            Invite users and increase
+            your daily interest automatically.
+
+        </p>
+
+        <button onclick="closeModal()" style="
+            margin-top:25px;
+            width:100%;
+            border:none;
+            padding:16px;
+            border-radius:15px;
+            background:#2563eb;
+            color:white;
+            font-size:16px;
+            font-weight:bold;
+            cursor:pointer;
+        ">
+            Continue
+        </button>
+
+    </div>
+
+</div>
+
+{% endif %}
+
 <div id="liveNotification"></div>
 
 <div class="container">
@@ -303,8 +388,25 @@
     <!-- TOP -->
     <div class="top-bar">
 
-        <a href="/notifications/" class="bell">
-            🔔 Notifications
+        <a href="/support/" class="bell">
+
+            💬 Messages
+
+            {% if unread_messages > 0 %}
+
+            <span style="
+                background:red;
+                color:white;
+                padding:4px 8px;
+                border-radius:50%;
+                margin-left:5px;
+                font-size:12px;
+            ">
+                {{ unread_messages }}
+            </span>
+
+            {% endif %}
+
         </a>
 
         <a href="/transactions/" class="bell">
@@ -341,7 +443,7 @@
 
     <!-- CONTACT -->
     <a
-        href="https://m.me/YOUR_FACEBOOK_PAGE_NAME"
+        href="/support/"
         target="_blank"
         class="contact-btn"
     >
@@ -555,6 +657,13 @@
 </div>
 
 <script>
+
+function closeModal(){
+
+    document.getElementById(
+        "welcomeModal"
+    ).style.display = "none"
+}
 
 let balance =
 parseFloat("{{ profile.balance|default:0 }}") || 0

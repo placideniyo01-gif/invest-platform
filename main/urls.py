@@ -16,7 +16,7 @@ urlpatterns = [
     path('transactions/', views.transactions_view, name="transactions"),
     path('approve-deposit/<int:id>/', views.approve_deposit),
     path('reject-deposit/<int:id>/', views.reject_deposit),
-
+    path("support/", views.support_view, name="support"),
     path('approve-withdraw/<int:id>/', views.approve_withdraw),
     path('reject-withdraw/<int:id>/', views.reject_withdraw),
     path(

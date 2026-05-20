@@ -10,7 +10,7 @@ from asgiref.sync import async_to_sync
 
 from datetime import timedelta
 import requests
-
+from .models import SupportMessage
 from .utils import *
 from .models import (
     Profile,
@@ -226,11 +226,19 @@ def dashboard(request):
     referral_link = request.build_absolute_uri(
         f"/register/?ref={request.user.id}"
     )
+    
+    unread_messages = SupportMessage.objects.filter(
+        user=request.user,
+        sender="admin",
+        is_read=False
+    ).count()
 
     context = {
 
         "profile": profile,
 
+        "unread_messages": unread_messages,
+        
         "referral_bonuses": referral_bonuses,
 
         "active_bonus_percent": round(
@@ -806,4 +814,48 @@ def approve_deposit_api(request, id):
 
     return JsonResponse({
         "message": "Already processed"
+    })
+
+# =========================
+# SUPPORT CHAT
+# =========================
+@login_required
+def support_view(request):
+
+    if request.method == "POST":
+
+        message = request.POST.get("message")
+
+        if message:
+
+            SupportMessage.objects.create(
+                user=request.user,
+                sender="user",
+                message=message
+            )
+
+        return redirect("support")
+
+    # GET ALL MESSAGES
+    messages = SupportMessage.objects.filter(
+        user=request.user
+    ).order_by("created_at")
+
+    # MARK ADMIN MSG AS READ
+    SupportMessage.objects.filter(
+        user=request.user,
+        sender="admin",
+        is_read=False
+    ).update(is_read=True)
+
+    # UNREAD COUNT
+    unread_count = SupportMessage.objects.filter(
+        user=request.user,
+        sender="admin",
+        is_read=False
+    ).count()
+
+    return render(request, "support.html", {
+        "messages": messages,
+        "unread_count": unread_count
     })
