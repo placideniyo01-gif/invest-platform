@@ -177,6 +177,9 @@ STATICFILES_STORAGE = (
     'whitenoise.storage.CompressedManifestStaticFilesStorage'
 )
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.onrender.com",
+]
 
 # =========================================
 # DEFAULT AUTO FIELD
@@ -215,3 +218,11 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 SESSION_COOKIE_AGE = 1209600
 
 SESSION_SAVE_EVERY_REQUEST = True
+
+# =========================================
+# SECURITY
+# =========================================
+
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SECURE = True

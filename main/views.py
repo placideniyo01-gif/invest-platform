@@ -1,3 +1,6 @@
+# =========================
+# IMPORTS
+# =========================
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
@@ -10,16 +13,56 @@ from asgiref.sync import async_to_sync
 
 from datetime import timedelta
 import requests
-from .models import SupportMessage
+
 from .utils import *
+
 from .models import (
     Profile,
     Deposit,
     Withdraw,
     Transaction,
     Notification,
-    ReferralBonus
+    ReferralBonus,
+    SupportMessage
 )
+
+
+# =========================
+# SEND LIVE EVENT
+# =========================
+def send_live_event(user, data):
+
+    channel_layer = get_channel_layer()
+
+    if channel_layer is None:
+        return
+
+    async_to_sync(
+        channel_layer.group_send
+    )(
+        f"user_{user.id}",
+        {
+            "type": "send_live_data",
+            "data": data
+        }
+    )
+
+
+# =========================
+# PUSH BALANCE UPDATE
+# =========================
+def push_balance_update(user, profile):
+
+    send_live_event(user, {
+
+        "type": "balance_update",
+
+        "balance": float(profile.balance),
+
+        "interest": float(
+            profile.interest_balance
+        )
+    })
 
 
 # =========================
@@ -36,10 +79,8 @@ def update_interest(profile):
     if seconds_passed <= 0:
         return
 
-    # BASE %
     total_percent = 5.0
 
-    # ACTIVE REFERRALS
     active_bonuses = ReferralBonus.objects.filter(
         referrer=profile.user,
         expires_at__gt=now
@@ -53,7 +94,6 @@ def update_interest(profile):
             bonus.bonus_percent
         )
 
-    # EXTRA BONUS EVERY 10 USERS
     total_referrals = active_bonuses.count()
 
     groups_of_10 = total_referrals // 10
@@ -63,7 +103,6 @@ def update_interest(profile):
     total_percent += active_bonus_percent
     total_percent += extra_group_bonus
 
-    # CALCULATE
     daily_interest = (
         profile.balance * total_percent
     ) / 100
@@ -111,63 +150,102 @@ def login_view(request):
     if request.method == "POST":
 
         email = request.POST.get("email")
+
         password = request.POST.get("password")
 
-        user = authenticate(username=email, password=password)
+        user = authenticate(
+            username=email,
+            password=password
+        )
 
         if user:
+
             login(request, user)
+
             return redirect("dashboard")
 
         error = "Invalid email or password"
 
-    return render(request, "login.html", {"error": error})
+    return render(
+        request,
+        "login.html",
+        {
+            "error": error
+        }
+    )
+
+
 # =========================
 # REGISTER
 # =========================
 def register_view(request):
 
     error = ""
+
     ref_code = request.GET.get("ref")
 
     if request.method == "POST":
 
         email = request.POST.get("email")
+
         password = request.POST.get("password")
+
         confirm = request.POST.get("confirm")
 
         if not email or not password or not confirm:
+
             error = "Fill all fields"
 
         elif password != confirm:
+
             error = "Passwords do not match"
 
-        elif User.objects.filter(username=email).exists():
+        elif User.objects.filter(
+            username=email
+        ).exists():
+
             error = "Email already exists"
 
         else:
+
             user = User.objects.create_user(
                 username=email,
                 email=email,
                 password=password
             )
 
-            # profile already created by signal
-            profile = Profile.objects.get(user=user)
+            profile = Profile.objects.get(
+                user=user
+            )
 
-            referrer = None
             if ref_code:
+
                 try:
-                    referrer = User.objects.get(id=ref_code)
+
+                    referrer = User.objects.get(
+                        id=ref_code
+                    )
+
                     profile.referred_by = referrer
+
                     profile.save()
+
                 except:
                     pass
 
             login(request, user)
+
             return redirect("dashboard")
 
-    return render(request, "register.html", {"error": error})
+    return render(
+        request,
+        "register.html",
+        {
+            "error": error
+        }
+    )
+
+
 # =========================
 # DASHBOARD
 # =========================
@@ -185,6 +263,7 @@ def dashboard(request):
     ).order_by("-created_at")
 
     active_bonus_percent = 0
+
     locked_bonus_percent = 0
 
     for bonus in referral_bonuses:
@@ -226,18 +305,24 @@ def dashboard(request):
     referral_link = request.build_absolute_uri(
         f"/register/?ref={request.user.id}"
     )
-    
+
     unread_messages = SupportMessage.objects.filter(
         user=request.user,
         sender="admin",
         is_read=False
     ).count()
 
+    support_online = User.objects.filter(
+        is_superuser=True
+    ).exists()
+
     context = {
 
         "profile": profile,
 
         "unread_messages": unread_messages,
+
+        "support_online": support_online,
 
         "referral_bonuses": referral_bonuses,
 
@@ -296,7 +381,9 @@ def claim_interest(request):
     profile.save()
 
     Notification.objects.create(
+
         user=request.user,
+
         message="Interest claimed successfully"
     )
 
@@ -304,6 +391,14 @@ def claim_interest(request):
         request.user,
         profile
     )
+
+    send_live_event(request.user, {
+
+        "type": "popup",
+
+        "message":
+        "Interest claimed successfully ✅"
+    })
 
     return JsonResponse({
 
@@ -333,7 +428,9 @@ def deposit(request):
 
         deposit_type = request.POST.get("type")
 
+        # =====================
         # MTN
+        # =====================
         if deposit_type == "MTN":
 
             amount_rwf = float(
@@ -350,11 +447,12 @@ def deposit(request):
             if amount_usd < 20:
 
                 return JsonResponse({
+
                     "error":
                     "Minimum deposit is $20"
                 })
 
-            Deposit.objects.create(
+            d = Deposit.objects.create(
 
                 user=request.user,
 
@@ -381,10 +479,14 @@ def deposit(request):
 
                 type="Deposit",
 
-                amount=amount_usd
+                amount=amount_usd,
+
+                status="Pending"
             )
 
+        # =====================
         # USDT
+        # =====================
         else:
 
             amount_usdt = float(
@@ -397,11 +499,12 @@ def deposit(request):
             if amount_usdt < 20:
 
                 return JsonResponse({
+
                     "error":
                     "Minimum deposit is $20"
                 })
 
-            Deposit.objects.create(
+            d = Deposit.objects.create(
 
                 user=request.user,
 
@@ -422,8 +525,19 @@ def deposit(request):
 
                 type="Deposit",
 
-                amount=amount_usdt
+                amount=amount_usdt,
+
+                status="Pending"
             )
+
+        # LIVE POPUP
+        send_live_event(request.user, {
+
+            "type": "popup",
+
+            "message":
+            "Deposit request submitted 🚀"
+        })
 
         return redirect("dashboard")
 
@@ -468,6 +582,7 @@ def withdraw(request):
         if amount_usd > profile.balance:
 
             return JsonResponse({
+
                 "error":
                 "Insufficient balance"
             })
@@ -513,6 +628,25 @@ def withdraw(request):
 
                 status="Pending"
             )
+
+        Transaction.objects.create(
+
+            user=request.user,
+
+            type="Withdraw",
+
+            amount=amount_usd,
+
+            status="Pending"
+        )
+
+        send_live_event(request.user, {
+
+            "type": "popup",
+
+            "message":
+            "Withdraw request submitted 💸"
+        })
 
         return redirect("dashboard")
 
@@ -578,43 +712,20 @@ def balance_api(request):
 
     update_interest(profile)
 
+    unread = SupportMessage.objects.filter(
+        user=request.user,
+        sender="admin",
+        is_read=False
+    ).count()
+
     return JsonResponse({
 
-        "balance":
-        profile.balance,
+        "balance": profile.balance,
 
-        "interest":
-        profile.interest_balance
+        "interest": profile.interest_balance,
+
+        "unread": unread
     })
-
-
-# =========================
-# PUSH LIVE BALANCE
-# =========================
-def push_balance_update(
-    user,
-    profile
-):
-
-    channel_layer = get_channel_layer()
-
-    if channel_layer is None:
-        return
-
-    async_to_sync(
-        channel_layer.group_send
-    )(
-        f"user_{user.id}",
-        {
-            "type": "send_balance",
-            "balance": float(
-                profile.balance
-            ),
-            "interest": float(
-                profile.interest_balance
-            )
-        }
-    )
 
 
 # =========================
@@ -640,7 +751,15 @@ def approve_deposit(request, id):
 
         d.save()
 
-        # FIRST APPROVED DEPOSIT
+        Transaction.objects.filter(
+            user=d.user,
+            type="Deposit",
+            amount=d.amount_usd
+        ).update(status="Approved")
+
+        # =====================
+        # REFERRAL BONUS
+        # =====================
         first_deposit = Deposit.objects.filter(
             user=d.user,
             status="Approved"
@@ -694,6 +813,14 @@ def approve_deposit(request, id):
                     )
                 )
 
+                send_live_event(referrer, {
+
+                    "type": "popup",
+
+                    "message":
+                    f"Referral bonus +{bonus_percent}% 🚀"
+                })
+
         Notification.objects.create(
 
             user=d.user,
@@ -709,9 +836,18 @@ def approve_deposit(request, id):
             profile
         )
 
+        send_live_event(d.user, {
+
+            "type": "popup",
+
+            "message":
+            f"Deposit approved ✅ ${d.amount_usd}"
+        })
+
     return redirect(
         "/admin/main/deposit/"
     )
+
 
 # =========================
 # REJECT DEPOSIT
@@ -725,11 +861,26 @@ def reject_deposit(request, id):
     d.save()
 
     Notification.objects.create(
+
         user=d.user,
-        message=f"Deposit of ${d.amount_usd} rejected"
+
+        message=(
+            f"Deposit of "
+            f"${d.amount_usd} rejected"
+        )
     )
 
-    return redirect('/admin/main/deposit/')
+    send_live_event(d.user, {
+
+        "type": "popup",
+
+        "message":
+        f"Deposit rejected ❌"
+    })
+
+    return redirect(
+        '/admin/main/deposit/'
+    )
 
 
 # =========================
@@ -755,9 +906,20 @@ def approve_withdraw(request, id):
 
         w.save()
 
-        Notification.objects.create(
+        Transaction.objects.filter(
             user=w.user,
-            message=f"Withdraw of ${w.amount_usd} approved"
+            type="Withdraw",
+            amount=w.amount_usd
+        ).update(status="Approved")
+
+        Notification.objects.create(
+
+            user=w.user,
+
+            message=(
+                f"Withdraw of "
+                f"${w.amount_usd} approved"
+            )
         )
 
         push_balance_update(
@@ -765,7 +927,17 @@ def approve_withdraw(request, id):
             profile
         )
 
-    return redirect('/admin/main/withdraw/')
+        send_live_event(w.user, {
+
+            "type": "popup",
+
+            "message":
+            f"Withdraw approved 💸"
+        })
+
+    return redirect(
+        '/admin/main/withdraw/'
+    )
 
 
 # =========================
@@ -780,41 +952,27 @@ def reject_withdraw(request, id):
     w.save()
 
     Notification.objects.create(
+
         user=w.user,
-        message=f"Withdraw of ${w.amount_usd} rejected"
+
+        message=(
+            f"Withdraw of "
+            f"${w.amount_usd} rejected"
+        )
     )
 
-    return redirect('/admin/main/withdraw/')
+    send_live_event(w.user, {
 
+        "type": "popup",
 
-# =========================
-# APPROVE DEPOSIT API
-# =========================
-def approve_deposit_api(request, id):
-
-    d = Deposit.objects.get(id=id)
-
-    if d.status == "Pending":
-
-        profile = Profile.objects.get(
-            user=d.user
-        )
-
-        profile.balance += d.amount_usd
-
-        profile.save()
-
-        d.status = "Approved"
-
-        d.save()
-
-        return JsonResponse({
-            "message": "Approved successfully"
-        })
-
-    return JsonResponse({
-        "message": "Already processed"
+        "message":
+        "Withdraw rejected ❌"
     })
+
+    return redirect(
+        '/admin/main/withdraw/'
+    )
+
 
 # =========================
 # SUPPORT CHAT
@@ -829,37 +987,58 @@ def support_view(request):
         if message:
 
             SupportMessage.objects.create(
+
                 user=request.user,
+
                 sender="user",
+
                 message=message
             )
 
+            push_support_message(
+                request.user,
+                message,
+                "user"
+            )
+            # LIVE TO USER
+            send_live_event(request.user, {
+
+                "type": "support_sent",
+
+                "message": message
+            })
+
         return redirect("support")
 
-    # GET ALL MESSAGES
     messages = SupportMessage.objects.filter(
         user=request.user
     ).order_by("created_at")
 
-    # COUNT BEFORE READ
     unread_count = SupportMessage.objects.filter(
         user=request.user,
         sender="admin",
         is_read=False
     ).count()
 
-    # MARK AS READ
     SupportMessage.objects.filter(
         user=request.user,
         sender="admin",
         is_read=False
     ).update(is_read=True)
 
-    return render(request, "support.html", {
-        "messages": messages,
-        "unread_count": unread_count
-    })
-    
+    return render(
+        request,
+        "support.html",
+        {
+            "messages": messages,
+            "unread_count": unread_count
+        }
+    )
+
+
+# =========================
+# UNREAD SUPPORT COUNT
+# =========================
 @login_required
 def unread_support_count(request):
 
@@ -872,3 +1051,64 @@ def unread_support_count(request):
     return JsonResponse({
         "count": count
     })
+
+
+# =========================
+# ADMIN LIVE STATS
+# =========================
+@login_required
+def admin_live_stats(request):
+
+    if not request.user.is_superuser:
+
+        return JsonResponse({
+            "error": "Unauthorized"
+        })
+
+    pending_deposits = Deposit.objects.filter(
+        status="Pending"
+    ).count()
+
+    pending_withdraws = Withdraw.objects.filter(
+        status="Pending"
+    ).count()
+
+    unread_support = SupportMessage.objects.filter(
+        sender="user",
+        is_read=False
+    ).count()
+
+    total_users = User.objects.count()
+
+    return JsonResponse({
+
+        "pending_deposits":
+        pending_deposits,
+
+        "pending_withdraws":
+        pending_withdraws,
+
+        "unread_support":
+        unread_support,
+
+        "total_users":
+        total_users
+    })
+
+# =========================
+# PUSH SUPPORT MESSAGE
+# =========================
+def push_support_message(user, message, sender):
+
+    channel_layer = get_channel_layer()
+
+    async_to_sync(
+        channel_layer.group_send
+    )(
+        f"user_{user.id}",
+        {
+            "type": "support_message",
+            "message": message,
+            "sender": sender
+        }
+    )

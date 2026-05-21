@@ -80,3 +80,19 @@ class BalanceConsumer(AsyncWebsocketConsumer):
 
             "status": event["status"]
         }))
+     # =====================
+    # SUPPORT MESSAGE
+    # =====================
+    async def support_message(self, event):
+
+        await self.send(
+            text_data=json.dumps({
+                "type": "support",
+
+                "message":
+                event["message"],
+
+                "sender":
+                event["sender"]
+            })
+        )

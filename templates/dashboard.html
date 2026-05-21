@@ -15,16 +15,22 @@
         }
 
         body{
-            background:#0f172a;
+            background:#020617;
             font-family:Arial, sans-serif;
             color:white;
+            overflow-x:hidden;
         }
 
         .container{
-            max-width:600px;
+            max-width:650px;
             margin:auto;
             padding:20px;
+            padding-bottom:120px;
         }
+
+        /* =========================
+           TOP BAR
+        ========================== */
 
         .top-bar{
             display:flex;
@@ -34,51 +40,106 @@
 
         .bell{
             flex:1;
-            background:#2563eb;
-            padding:15px;
-            border-radius:16px;
+            background:linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+            padding:16px;
+            border-radius:18px;
             color:white;
             text-decoration:none;
             text-align:center;
             font-weight:bold;
             position:relative;
+            box-shadow:
+            0 10px 30px rgba(37,99,235,.3);
         }
 
         .badge{
             position:absolute;
             top:-8px;
             right:-5px;
-            background:red;
+            background:#ef4444;
             color:white;
-            min-width:24px;
-            height:24px;
+            min-width:25px;
+            height:25px;
             display:flex;
             justify-content:center;
             align-items:center;
             border-radius:50%;
             font-size:12px;
             font-weight:bold;
+            border:2px solid #020617;
         }
 
+        /* =========================
+           BALANCE
+        ========================== */
+
         .balance{
-            background:#1e293b;
+            background:linear-gradient(
+                135deg,
+                #0f172a,
+                #1e293b
+            );
+
             padding:35px 20px;
-            border-radius:28px;
+            border-radius:30px;
             text-align:center;
-            box-shadow:0 0 25px rgba(0,0,0,0.3);
+            box-shadow:
+            0 0 40px rgba(0,0,0,.4);
+
+            border:1px solid #334155;
+        }
+
+        .balance-label{
+            color:#94a3b8;
+            font-size:15px;
+            margin-bottom:12px;
         }
 
         .balance h1{
-            font-size:42px;
+            font-size:45px;
             color:#22c55e;
-            margin-bottom:10px;
+            margin-bottom:12px;
             word-break:break-word;
         }
 
-        .balance p{
-            color:#94a3b8;
-            font-size:15px;
+        .live-dot{
+            width:10px;
+            height:10px;
+            background:#22c55e;
+            border-radius:50%;
+            display:inline-block;
+            animation:pulse 1s infinite;
+            margin-right:6px;
         }
+
+        @keyframes pulse{
+
+            0%{
+                opacity:1;
+            }
+
+            50%{
+                opacity:.3;
+            }
+
+            100%{
+                opacity:1;
+            }
+        }
+
+        .live-text{
+            color:#94a3b8;
+            font-size:14px;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================== */
 
         .buttons{
             display:flex;
@@ -88,91 +149,140 @@
 
         .btn{
             flex:1;
-            background:#2563eb;
+
+            background:linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
             padding:18px;
-            border-radius:18px;
+            border-radius:20px;
             text-align:center;
             text-decoration:none;
             color:white;
             font-weight:bold;
             transition:.3s;
+            box-shadow:
+            0 10px 30px rgba(37,99,235,.25);
         }
 
         .btn:hover{
-            transform:scale(1.03);
+            transform:translateY(-3px);
         }
 
-        .contact-btn{
-            display:block;
+        /* =========================
+           SUPPORT STATUS
+        ========================== */
+
+        .support-status{
             margin-top:20px;
-            background:#1877f2;
-            padding:18px;
+            background:#0f172a;
+            border:1px solid #334155;
+            padding:16px;
             border-radius:18px;
             text-align:center;
-            text-decoration:none;
-            color:white;
+            color:#cbd5e1;
             font-weight:bold;
         }
+
+        .online-dot{
+            width:10px;
+            height:10px;
+            background:#22c55e;
+            border-radius:50%;
+            display:inline-block;
+            margin-right:8px;
+            animation:pulse 1s infinite;
+        }
+
+        /* =========================
+           INTEREST
+        ========================== */
 
         .interest{
             margin-top:25px;
-            background:#1e293b;
-            padding:25px;
-            border-radius:25px;
-            text-align:center;
-            box-shadow:0 0 20px rgba(0,0,0,0.3);
+            background:#111827;
+            padding:28px;
+            border-radius:28px;
+            border:1px solid #334155;
         }
 
-        .daily-interest{
+        .interest-title{
             color:#22c55e;
-            font-weight:bold;
-            margin-bottom:18px;
-            line-height:1.9;
+            text-align:center;
+            font-size:22px;
+            margin-bottom:20px;
         }
 
-        .interest h2{
-            font-size:32px;
-            margin-top:10px;
+        .interest-stats{
+            background:#020617;
+            padding:18px;
+            border-radius:18px;
+            line-height:2;
+            color:#cbd5e1;
+            text-align:center;
+        }
+
+        .interest-value{
+            text-align:center;
+            margin-top:25px;
+        }
+
+        .interest-value h2{
+            font-size:36px;
+            color:#22c55e;
         }
 
         .claim-btn{
             width:100%;
-            margin-top:20px;
-            background:#22c55e;
+            margin-top:25px;
+
+            background:linear-gradient(
+                135deg,
+                #22c55e,
+                #16a34a
+            );
+
             border:none;
-            padding:16px;
-            border-radius:15px;
+            padding:17px;
+            border-radius:16px;
             color:white;
             font-size:16px;
             font-weight:bold;
             cursor:pointer;
         }
 
+        /* =========================
+           REFERRAL
+        ========================== */
+
         .referral-box{
             margin-top:25px;
-            background:#1e293b;
-            padding:25px;
-            border-radius:25px;
+            background:#111827;
+            padding:28px;
+            border-radius:28px;
+            border:1px solid #334155;
         }
 
         .referral-title{
             color:#22c55e;
-            margin-bottom:10px;
+            margin-bottom:15px;
             font-size:25px;
         }
 
         .referral-text{
             color:#cbd5e1;
-            line-height:1.8;
+            line-height:1.9;
             font-size:14px;
-            margin-bottom:18px;
         }
 
         .referral-link-box{
-            background:#0f172a;
+            margin-top:20px;
+            background:#020617;
             border:1px solid #334155;
-            padding:15px;
-            border-radius:15px;
+            padding:18px;
+            border-radius:18px;
             overflow:hidden;
         }
 
@@ -180,46 +290,61 @@
             color:#60a5fa;
             text-decoration:none;
             word-break:break-all;
+            font-size:14px;
         }
 
         .copy-btn{
             width:100%;
             margin-top:15px;
-            background:#2563eb;
+
+            background:linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
             border:none;
-            padding:14px;
-            border-radius:12px;
+            padding:15px;
+            border-radius:15px;
             color:white;
             font-weight:bold;
             cursor:pointer;
         }
 
+        /* =========================
+           STATS
+        ========================== */
+
         .ref-stats{
-            margin-top:20px;
+            margin-top:25px;
             display:grid;
             grid-template-columns:1fr 1fr;
             gap:15px;
         }
 
         .stat-card{
-            background:#0f172a;
+            background:#020617;
             border:1px solid #334155;
-            padding:18px;
-            border-radius:16px;
+            padding:20px;
+            border-radius:18px;
             text-align:center;
         }
 
         .stat-card h3{
             color:#94a3b8;
             font-size:14px;
-            margin-bottom:10px;
+            margin-bottom:12px;
         }
 
         .stat-card p{
             color:#22c55e;
-            font-size:22px;
+            font-size:25px;
             font-weight:bold;
         }
+
+        /* =========================
+           REFERRAL USERS
+        ========================== */
 
         .referral-users{
             margin-top:25px;
@@ -227,33 +352,39 @@
 
         .users-title{
             color:#22c55e;
-            margin-bottom:15px;
+            margin-bottom:18px;
         }
 
         .ref-user{
-            background:#0f172a;
+            background:#020617;
             border:1px solid #334155;
-            padding:15px;
-            border-radius:15px;
-            margin-bottom:12px;
+            padding:18px;
+            border-radius:18px;
+            margin-bottom:15px;
+
             display:flex;
             justify-content:space-between;
             align-items:center;
-            gap:10px;
+            gap:15px;
+        }
+
+        .ref-user small{
+            color:#94a3b8;
+            line-height:1.8;
         }
 
         .active-badge{
             background:#22c55e;
-            padding:8px 12px;
-            border-radius:10px;
+            padding:8px 14px;
+            border-radius:12px;
             font-size:13px;
             font-weight:bold;
         }
 
         .locked-badge{
             background:#f59e0b;
-            padding:8px 12px;
-            border-radius:10px;
+            padding:8px 14px;
+            border-radius:12px;
             font-size:13px;
             font-weight:bold;
         }
@@ -261,23 +392,38 @@
         .empty-text{
             color:#94a3b8;
             text-align:center;
-            margin-top:10px;
+            margin-top:15px;
         }
+
+        /* =========================
+           NOTIFICATION
+        ========================== */
 
         #liveNotification{
             position:fixed;
             top:20px;
             right:20px;
+
             background:#22c55e;
             color:white;
-            padding:15px 20px;
-            border-radius:12px;
+
+            padding:16px 22px;
+
+            border-radius:15px;
+
             display:none;
+
             z-index:999999;
+
             font-weight:bold;
+
+            box-shadow:
+            0 0 25px rgba(0,0,0,.4);
         }
 
-        /* MODAL */
+        /* =========================
+           MODAL
+        ========================== */
 
         #welcomeModal{
             position:fixed;
@@ -285,19 +431,19 @@
             left:0;
             width:100%;
             height:100%;
-            background:rgba(0,0,0,0.88);
-            z-index:99999;
+            background:rgba(0,0,0,.92);
+            z-index:999999;
             overflow-y:auto;
-            padding:30px 15px;
+            padding:25px 15px;
         }
 
         .modal-box{
-            background:#1e293b;
+            background:#111827;
             width:100%;
-            max-width:650px;
+            max-width:700px;
             margin:auto;
             padding:35px;
-            border-radius:25px;
+            border-radius:28px;
             border:1px solid #334155;
             animation:popup .3s ease;
         }
@@ -305,7 +451,7 @@
         @keyframes popup{
 
             from{
-                transform:scale(.8);
+                transform:scale(.85);
                 opacity:0;
             }
 
@@ -317,7 +463,7 @@
 
         .modal-box h1{
             color:#22c55e;
-            margin-bottom:20px;
+            margin-bottom:25px;
             text-align:center;
         }
 
@@ -329,16 +475,30 @@
 
         .continue-btn{
             width:100%;
-            margin-top:25px;
+            margin-top:30px;
+
             border:none;
-            padding:16px;
-            border-radius:15px;
-            background:#2563eb;
+
+            padding:18px;
+
+            border-radius:18px;
+
+            background:linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
             color:white;
+
             font-size:16px;
             font-weight:bold;
             cursor:pointer;
         }
+
+        /* =========================
+           MOBILE
+        ========================== */
 
         @media(max-width:600px){
 
@@ -351,11 +511,11 @@
             }
 
             .balance h1{
-                font-size:34px;
+                font-size:35px;
             }
 
-            .interest h2{
-                font-size:25px;
+            .interest-value h2{
+                font-size:28px;
             }
 
             .modal-box{
@@ -385,19 +545,19 @@
 
             <br><br>
 
-            To activate your account and start earning daily profits automatically, you need to make a deposit using MTN Mobile Money or USDT.
+            To activate your account and begin earning profits automatically, you must make a minimum deposit of $20 using MTN Mobile Money or USDT.
 
             <br><br>
 
-            After your deposit is approved by admin, your account becomes active instantly and your balance begins generating interest every second.
+            Once your deposit is approved by admin, your balance becomes active immediately and starts generating interest every second automatically.
 
             <br><br>
 
-            🔥 BASE DAILY PROFIT:
+            🔥 BASE DAILY PROFIT SYSTEM
 
             <br><br>
 
-            Every active user receives a fixed 5% daily interest on their account balance.
+            Every active investor receives a fixed 5% daily interest based on total balance.
 
             <br><br>
 
@@ -405,19 +565,23 @@
 
             <br>
 
-            If your balance is $100, your account generates approximately $5 profit every 24 hours automatically.
+            $100 balance → around $5 profit daily
+
+            <br>
+
+            $500 balance → around $25 profit daily
 
             <br><br>
 
-            💎 REFERRAL BONUS SYSTEM:
+            💎 REFERRAL BONUS SYSTEM
 
             <br><br>
 
-            Invite friends using your personal referral link.
+            Every user receives a unique referral link.
 
             <br><br>
 
-            When someone creates an account using your link and makes a deposit, your account receives additional bonus interest percentage.
+            When someone joins using your link and makes a deposit, your account receives additional daily bonus percentage automatically.
 
             <br><br>
 
@@ -425,18 +589,18 @@
 
             <br><br>
 
-            💰 Deposit $20 or more
-            → You receive +0.1% extra daily interest
+            💰 Referral deposits $20+
+            → You receive +0.1%
 
             <br><br>
 
-            💰 Deposit $250 or more
-            → You receive +0.2% extra daily interest
+            💰 Referral deposits $250+
+            → You receive +0.2%
 
             <br><br>
 
-            💰 Deposit $500 or more
-            → You receive +0.3% extra daily interest
+            💰 Referral deposits $500+
+            → You receive +0.3%
 
             <br><br>
 
@@ -444,43 +608,52 @@
 
             <br><br>
 
-            Your normal daily rate is 5%.
+            Base rate = 5%
 
             <br>
 
-            If referrals give you +0.3% bonus, your total becomes 5.3% daily.
+            Referral bonus = +0.3%
+
+            <br>
+
+            Total rate = 5.3% daily
 
             <br><br>
 
-            ⏳ BONUS DURATION:
+            ⏳ BONUS EXPIRATION
 
             <br><br>
 
             Referral bonuses are temporary.
 
-            <br>
+            <br><br>
 
-            Every referral bonus remains active for a limited period before expiring automatically.
+            Every bonus remains active for a limited number of days before expiring automatically.
 
             <br><br>
 
             When bonus expires:
 
-            <br>
+            <br><br>
 
-            ✔ your referral stays counted
-
-            <br>
-
-            ✔ your profit history remains safe
+            ✔ Referral remains counted
 
             <br>
 
-            ✖ but extra bonus percentage is removed automatically
+            ✔ Profit history remains safe
+
+            <br>
+
+            ✔ Account stays active
+
+            <br>
+
+            ✖ Extra percentage bonus is removed
 
             <br><br>
 
-            You can keep increasing your earnings by inviting more active investors.
+            The more active investors you invite,
+            the more your daily earnings increase.
 
         </p>
 
@@ -501,16 +674,22 @@
 
 <div class="container">
 
+    <!-- TOP -->
     <div class="top-bar">
 
         <a href="/support/" class="bell">
 
-            💬 Messages
+            💬 Support
 
             {% if unread_messages > 0 %}
-            <span class="badge">
+
+            <span
+                class="badge"
+                id="unreadBadge"
+            >
                 {{ unread_messages }}
             </span>
+
             {% endif %}
 
         </a>
@@ -521,16 +700,28 @@
 
     </div>
 
+    <!-- BALANCE -->
     <div class="balance">
+
+        <p class="balance-label">
+            Main Balance
+        </p>
 
         <h1 id="balance">
             ${{ profile.balance|floatformat:6 }}
         </h1>
 
-        <p>Main Balance</p>
+        <div class="live-text">
+
+            <span class="live-dot"></span>
+
+            Live realtime balance
+
+        </div>
 
     </div>
 
+    <!-- BUTTONS -->
     <div class="buttons">
 
         <a href="/deposit/" class="btn">
@@ -543,41 +734,52 @@
 
     </div>
 
-    <a href="/support/" class="contact-btn">
-        💬 Contact Us
-    </a>
+    <!-- SUPPORT -->
+    <div class="support-status">
 
+        <span class="online-dot"></span>
+
+        Support Online 24/7
+
+    </div>
+
+    <!-- INTEREST -->
     <div class="interest">
 
-        <p class="daily-interest">
+        <h2 class="interest-title">
+            🔥 Live Interest Earnings
+        </h2>
 
-            🔥 5% Base Interest
+        <div class="interest-stats">
+
+            Base Interest:
+            5%
 
             <br>
 
-            🚀 Active Referral Bonus:
+            Active Referral Bonus:
             +{{ active_bonus_percent }}%
 
             <br>
 
-            💎 Total Daily Rate:
+            Total Daily Rate:
             {{ total_daily_percent }}%
 
-        </p>
+        </div>
 
-        <h2>
+        <div class="interest-value">
 
-            Interest
+            <h2>
 
-            <br><br>
+                <span id="interest">
+                    {{ profile.interest_balance|floatformat:6 }}
+                </span>
 
-            <span id="interest">
-                {{ profile.interest_balance|floatformat:6 }}
-            </span>
+                USD
 
-            USD
+            </h2>
 
-        </h2>
+        </div>
 
         <button
             class="claim-btn"
@@ -588,7 +790,171 @@
 
     </div>
 
+    <!-- REFERRALS -->
+    <div class="referral-box">
+
+        <h2 class="referral-title">
+            🎁 Referral Program
+        </h2>
+
+        <p class="referral-text">
+
+            Invite users using your personal referral link and increase your daily interest automatically whenever your referrals make deposits.
+
+        </p>
+
+        <div class="referral-link-box">
+
+            <a
+                id="referralLink"
+                class="referral-link"
+            >
+                {{ referral_link }}
+            </a>
+
+        </div>
+
+        <button
+            class="copy-btn"
+            onclick="copyReferral()"
+        >
+            Copy Referral Link
+        </button>
+
+        <!-- STATS -->
+        <div class="ref-stats">
+
+            <div class="stat-card">
+
+                <h3>
+                    👥 Referrals
+                </h3>
+
+                <p>
+                    {{ total_referrals }}
+                </p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h3>
+                    🚀 Active Bonus
+                </h3>
+
+                <p>
+                    +{{ active_bonus_percent }}%
+                </p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h3>
+                    🔒 Locked Bonus
+                </h3>
+
+                <p>
+                    +{{ locked_bonus_percent }}%
+                </p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h3>
+                    💰 Referral Profit
+                </h3>
+
+                <p>
+                    ${{ referral_profit }}
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- REFERRAL USERS -->
+        <div class="referral-users">
+
+            <h3 class="users-title">
+                👥 Your Referral Team
+            </h3>
+
+            {% for bonus in referral_bonuses %}
+
+            <div class="ref-user">
+
+                <div>
+
+                    <strong>
+                        {{ bonus.referred_user.username }}
+                    </strong>
+
+                    <br>
+
+                    <small>
+
+                        Deposit:
+                        ${{ bonus.deposit.amount_usd }}
+
+                        <br>
+
+                        Bonus:
+                        +{{ bonus.bonus_percent }}%
+
+                        <br>
+
+                        Expire:
+                        {{ bonus.expires_at|date:"M d, Y" }}
+
+                    </small>
+
+                </div>
+
+                <div>
+
+                    {% if bonus.is_active %}
+
+                    <span class="active-badge">
+                        ACTIVE
+                    </span>
+
+                    {% else %}
+
+                    <span class="locked-badge">
+                        LOCKED
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% empty %}
+
+            <p class="empty-text">
+                No referrals yet
+            </p>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
 </div>
+
+<!-- SOUND -->
+<audio id="notifySound">
+
+    <source
+        src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
+        type="audio/mpeg"
+    >
+
+</audio>
 
 <script>
 
@@ -694,30 +1060,111 @@ function showNotification(msg){
 }
 
 
-// AUTO REFRESH
-function refreshBalance(){
+// SOUND
+function playSound(){
 
-    fetch("/balance-api/")
-
-    .then(res => res.json())
-
-    .then(data => {
-
-        balance =
-        parseFloat(data.balance) || 0
-
-        interest =
-        parseFloat(data.interest) || 0
-
-        document.getElementById("balance").innerHTML =
-        "$" + balance.toFixed(6)
-
-        document.getElementById("interest").innerHTML =
-        interest.toFixed(6)
-    })
+    document
+    .getElementById("notifySound")
+    .play()
 }
 
-setInterval(refreshBalance,15000)
+
+// SOCKET
+const protocol =
+window.location.protocol === "https:"
+? "wss://"
+: "ws://"
+
+const socket = new WebSocket(
+
+    protocol +
+    window.location.host +
+    "/ws/balance/"
+)
+
+socket.onmessage = function(e){
+
+    const data = JSON.parse(e.data)
+
+    // BALANCE
+    if(data.type === "balance"){
+
+        if(data.balance !== undefined){
+
+            balance =
+            parseFloat(data.balance)
+
+            document.getElementById(
+                "balance"
+            ).innerHTML =
+            "$" + balance.toFixed(6)
+        }
+
+        if(data.interest !== undefined){
+
+            interest =
+            parseFloat(data.interest)
+
+            document.getElementById(
+                "interest"
+            ).innerHTML =
+            interest.toFixed(6)
+        }
+    }
+
+    // SUPPORT
+    if(data.type === "support"){
+
+        showNotification(
+            "📩 New admin reply received"
+        )
+
+        playSound()
+
+        showPopupMessage(
+            data.message
+        )
+    }
+}
+
+
+// POPUP
+function showPopupMessage(message){
+
+    let popup =
+    document.createElement("div")
+
+    popup.style.position = "fixed"
+    popup.style.bottom = "20px"
+    popup.style.right = "20px"
+    popup.style.background = "#2563eb"
+    popup.style.color = "white"
+    popup.style.padding = "20px"
+    popup.style.borderRadius = "15px"
+    popup.style.zIndex = "999999"
+    popup.style.maxWidth = "320px"
+
+    popup.innerHTML = `
+
+        <strong>
+            New Admin Reply
+        </strong>
+
+        <br><br>
+
+        ${message}
+    `
+
+    document.body.appendChild(
+        popup
+    )
+
+    setTimeout(()=>{
+
+        popup.remove()
+
+    },7000)
+}
 
 </script>
 

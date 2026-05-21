@@ -178,34 +178,68 @@ class SupportMessageAdmin(admin.ModelAdmin):
     # =====================
     def reply_view(self, request, user_id):
 
-        user = User.objects.get(id=user_id)
+    from asgiref.sync import async_to_sync
+    from channels.layers import get_channel_layer
 
-        if request.method == "POST":
+    user = User.objects.get(id=user_id)
 
-            message = request.POST.get("message")
+    if request.method == "POST":
 
-            if message:
+        message = request.POST.get("message")
 
-                SupportMessage.objects.create(
+        if message:
 
-                    user=user,
-                    sender="admin",
-                    message=message,
-                    is_read=False
-                )
+            # SAVE MESSAGE
+            SupportMessage.objects.create(
 
-                return redirect(
-                    f"/admin/main/supportmessage/reply/{user.id}/"
-                )
+                user=user,
+                sender="admin",
+                message=message,
+                is_read=False
+            )
 
-        chats = SupportMessage.objects.filter(
-            user=user
-        ).order_by("created_at")
+            push_support_message(
+                user,
+                message,
+                "admin"
+            )
+            # =========================
+            # REALTIME WEBSOCKET SEND
+            # =========================
+            channel_layer = get_channel_layer()
 
-        csrf_token = get_token(request)
+            unread = SupportMessage.objects.filter(
+                user=user,
+                sender="admin",
+                is_read=False
+            ).count()
 
-        html = f"""
+            async_to_sync(
+                channel_layer.group_send
+            )(
+                f"user_{user.id}",
+                {
+                    "type": "support_message",
 
+                    "message": message,
+
+                    "sender": "admin",
+
+                    "unread": unread
+                }
+            )
+
+            return redirect(
+                f"/admin/main/supportmessage/reply/{user.id}/"
+            )
+
+    chats = SupportMessage.objects.filter(
+        user=user
+    ).order_by("created_at")
+
+    csrf_token = get_token(request)
+
+    html = f"""
         <html>
 
         <head>
