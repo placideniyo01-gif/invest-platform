@@ -5,7 +5,8 @@ from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
 from django.contrib.auth.models import User
-
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from .models import (
     Profile,
     Deposit,
@@ -177,9 +178,6 @@ class SupportMessageAdmin(admin.ModelAdmin):
     # REPLY VIEW
     # =====================
     def reply_view(self, request, user_id):
-
-    from asgiref.sync import async_to_sync
-    from channels.layers import get_channel_layer
 
     user = User.objects.get(id=user_id)
 
