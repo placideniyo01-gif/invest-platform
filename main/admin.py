@@ -5,8 +5,10 @@ from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
 from django.contrib.auth.models import User
+
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+
 from .models import (
     Profile,
     Deposit,
@@ -16,6 +18,32 @@ from .models import (
     ReferralBonus,
     SupportMessage
 )
+
+
+# =========================
+# PUSH SUPPORT MESSAGE
+# =========================
+def push_support_message(user, message, sender):
+
+    channel_layer = get_channel_layer()
+
+    unread = SupportMessage.objects.filter(
+        user=user,
+        sender="admin",
+        is_read=False
+    ).count()
+
+    async_to_sync(
+        channel_layer.group_send
+    )(
+        f"user_{user.id}",
+        {
+            "type": "support_message",
+            "message": message,
+            "sender": sender,
+            "unread": unread
+        }
+    )
 
 
 # =========================
@@ -179,65 +207,41 @@ class SupportMessageAdmin(admin.ModelAdmin):
     # =====================
     def reply_view(self, request, user_id):
 
-    user = User.objects.get(id=user_id)
+        user = User.objects.get(id=user_id)
 
-    if request.method == "POST":
+        if request.method == "POST":
 
-        message = request.POST.get("message")
+            message = request.POST.get("message")
 
-        if message:
+            if message:
 
-            # SAVE MESSAGE
-            SupportMessage.objects.create(
+                # SAVE MESSAGE
+                SupportMessage.objects.create(
 
-                user=user,
-                sender="admin",
-                message=message,
-                is_read=False
-            )
+                    user=user,
+                    sender="admin",
+                    message=message,
+                    is_read=False
+                )
 
-            push_support_message(
-                user,
-                message,
-                "admin"
-            )
-            # =========================
-            # REALTIME WEBSOCKET SEND
-            # =========================
-            channel_layer = get_channel_layer()
+                # REALTIME SEND
+                push_support_message(
+                    user,
+                    message,
+                    "admin"
+                )
 
-            unread = SupportMessage.objects.filter(
-                user=user,
-                sender="admin",
-                is_read=False
-            ).count()
+                return redirect(
+                    f"/admin/main/supportmessage/reply/{user.id}/"
+                )
 
-            async_to_sync(
-                channel_layer.group_send
-            )(
-                f"user_{user.id}",
-                {
-                    "type": "support_message",
+        chats = SupportMessage.objects.filter(
+            user=user
+        ).order_by("created_at")
 
-                    "message": message,
+        csrf_token = get_token(request)
 
-                    "sender": "admin",
-
-                    "unread": unread
-                }
-            )
-
-            return redirect(
-                f"/admin/main/supportmessage/reply/{user.id}/"
-            )
-
-    chats = SupportMessage.objects.filter(
-        user=user
-    ).order_by("created_at")
-
-    csrf_token = get_token(request)
-
-    html = f"""
+        html = f"""
         <html>
 
         <head>
@@ -245,6 +249,12 @@ class SupportMessageAdmin(admin.ModelAdmin):
             <title>Support Reply</title>
 
             <style>
+
+                *{{
+                    margin:0;
+                    padding:0;
+                    box-sizing:border-box;
+                }}
 
                 body{{
                     background:#0f172a;
@@ -254,31 +264,42 @@ class SupportMessageAdmin(admin.ModelAdmin):
                 }}
 
                 .chat{{
-                    max-width:700px;
+                    max-width:800px;
                     margin:auto;
                 }}
 
+                h1{{
+                    margin-bottom:25px;
+                    color:#22c55e;
+                }}
+
                 .msg{{
-                    padding:15px;
-                    border-radius:12px;
+                    padding:18px;
+                    border-radius:15px;
                     margin-bottom:15px;
+                    line-height:1.7;
                 }}
 
                 .user{{
                     background:#1e293b;
+                    border-left:5px solid #22c55e;
                 }}
 
                 .admin{{
                     background:#2563eb;
+                    border-left:5px solid white;
                 }}
 
                 textarea{{
                     width:100%;
-                    height:120px;
+                    height:140px;
                     border:none;
-                    border-radius:10px;
-                    padding:15px;
+                    border-radius:14px;
+                    padding:18px;
                     margin-top:20px;
+                    background:#1e293b;
+                    color:white;
+                    font-size:15px;
                 }}
 
                 button{{
@@ -287,8 +308,14 @@ class SupportMessageAdmin(admin.ModelAdmin):
                     color:white;
                     border:none;
                     padding:15px 25px;
-                    border-radius:10px;
+                    border-radius:12px;
                     cursor:pointer;
+                    font-size:15px;
+                    font-weight:bold;
+                }}
+
+                button:hover{{
+                    opacity:.9;
                 }}
 
             </style>
@@ -299,8 +326,9 @@ class SupportMessageAdmin(admin.ModelAdmin):
 
         <div class="chat">
 
-        <h1>Support Chat - {user.username}</h1>
-
+        <h1>
+            💬 Support Chat - {user.username}
+        </h1>
         """
 
         for chat in chats:
@@ -309,7 +337,9 @@ class SupportMessageAdmin(admin.ModelAdmin):
 
             <div class="msg {chat.sender}">
 
-                <strong>{chat.sender.upper()}</strong>
+                <strong>
+                    {chat.sender.upper()}
+                </strong>
 
                 <br><br>
 
@@ -344,7 +374,6 @@ class SupportMessageAdmin(admin.ModelAdmin):
 
         </body>
         </html>
-
         """
 
         return HttpResponse(html)
