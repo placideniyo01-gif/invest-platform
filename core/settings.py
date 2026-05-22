@@ -3,7 +3,6 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # =========================================
 # SECURITY
 # =========================================
@@ -16,19 +15,14 @@ SECRET_KEY = os.environ.get(
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "invest-platform-jwy9.onrender.com",
+    "*"
 ]
-
 
 # =========================================
 # INSTALLED APPS
 # =========================================
 
 INSTALLED_APPS = [
-
-    'daphne',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,11 +31,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'channels',
-
     'main',
 ]
-
 
 # =========================================
 # MIDDLEWARE
@@ -66,13 +57,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
 # =========================================
 # URLS
 # =========================================
 
 ROOT_URLCONF = 'core.urls'
-
 
 # =========================================
 # TEMPLATES
@@ -102,15 +91,11 @@ TEMPLATES = [
     },
 ]
 
-
 # =========================================
-# WSGI + ASGI
+# WSGI
 # =========================================
 
 WSGI_APPLICATION = 'core.wsgi.application'
-
-ASGI_APPLICATION = 'core.asgi.application'
-
 
 # =========================================
 # DATABASE
@@ -122,7 +107,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # =========================================
 # PASSWORD VALIDATORS
@@ -147,7 +131,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # =========================================
 # LANGUAGE
 # =========================================
@@ -159,7 +142,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # =========================================
 # STATIC FILES
@@ -177,8 +159,12 @@ STATICFILES_STORAGE = (
     'whitenoise.storage.CompressedManifestStaticFilesStorage'
 )
 
+# =========================================
+# CSRF
+# =========================================
+
 CSRF_TRUSTED_ORIGINS = [
-    "https://invest-platform-jwy9.onrender.com",
+    "https://*.onrender.com",
 ]
 
 # =========================================
@@ -187,17 +173,6 @@ CSRF_TRUSTED_ORIGINS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-# =========================================
-# CHANNEL LAYERS
-# =========================================
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    },
-}
-
 # =========================================
 # LOGIN
 # =========================================
@@ -205,7 +180,6 @@ CHANNEL_LAYERS = {
 LOGIN_URL = '/login/'
 
 LOGIN_REDIRECT_URL = '/dashboard/'
-
 
 # =========================================
 # SESSION
@@ -219,6 +193,6 @@ SESSION_SAVE_EVERY_REQUEST = True
 # SECURITY
 # =========================================
 
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
 
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
