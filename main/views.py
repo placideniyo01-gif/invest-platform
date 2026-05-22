@@ -1,172 +1,178 @@
-# main/models.py
-
-from django.db import models
+from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+
+from .models import Profile, Deposit, Withdraw, Transaction, Notification, SupportMessage, ReferralBonus
+from django.utils import timezone
 
 
-class Profile(models.Model):
+# =========================
+# REGISTER
+# =========================
+def register(request):
 
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE
-    )
+    if request.method == "POST":
 
-    balance = models.DecimalField(
-        max_digits=20,
-        decimal_places=6,
-        default=0
-    )
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm = request.POST.get("confirm")
 
-    interest_balance = models.DecimalField(
-        max_digits=20,
-        decimal_places=6,
-        default=0
-    )
+        if password != confirm:
+            return render(request, "register.html", {"error": "Passwords do not match"})
 
-    referral_profit = models.DecimalField(
-        max_digits=20,
-        decimal_places=6,
-        default=0
-    )
+        if User.objects.filter(username=email).exists():
+            return render(request, "register.html", {"error": "User already exists"})
 
-    def __str__(self):
-        return self.user.username
+        user = User.objects.create_user(username=email, email=email, password=password)
+        Profile.objects.create(user=user)
+
+        return redirect("login")
+
+    return render(request, "register.html")
 
 
-class Deposit(models.Model):
+# =========================
+# LOGIN
+# =========================
+def login_view(request):
 
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
+    if request.method == "POST":
 
-    type = models.CharField(
-        max_length=20
-    )
+        email = request.POST.get("email")
+        password = request.POST.get("password")
 
-    amount_usd = models.DecimalField(
-        max_digits=20,
-        decimal_places=6
-    )
+        user = authenticate(request, username=email, password=password)
 
-    status = models.CharField(
-        max_length=20,
-        default="pending"
-    )
+        if user is not None:
+            login(request, user)
+            return redirect("dashboard")
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+        return render(request, "login.html", {"error": "Invalid credentials"})
+
+    return render(request, "login.html")
 
 
-class Withdraw(models.Model):
+# =========================
+# DASHBOARD
+# =========================
+def dashboard(request):
 
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
+    profile = Profile.objects.get(user=request.user)
 
-    type = models.CharField(
-        max_length=20
-    )
+    referral_bonuses = ReferralBonus.objects.filter(referrer=request.user)
 
-    amount = models.DecimalField(
-        max_digits=20,
-        decimal_places=6
-    )
+    context = {
+        "profile": profile,
+        "referral_bonuses": referral_bonuses,
+        "total_referrals": referral_bonuses.count(),
+        "active_bonus_percent": 0,
+        "locked_bonus_percent": 0,
+        "referral_profit": profile.referral_profit,
+        "referral_link": f"http://127.0.0.1:8000/register/?ref={profile.id}",
+        "unread_messages": 0
+    }
 
-    status = models.CharField(
-        max_length=20,
-        default="pending"
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    return render(request, "dashboard.html", context)
 
 
-class Transaction(models.Model):
+# =========================
+# DEPOSIT
+# =========================
+def deposit(request):
 
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
+    if request.method == "POST":
 
-    type = models.CharField(
-        max_length=100
-    )
+        Deposit.objects.create(
+            user=request.user,
+            deposit_type=request.POST.get("type"),
+            amount_usd=request.POST.get("amount_usd") or 0,
+            amount_rwf=request.POST.get("amount_rwf") or 0,
+            phone=request.POST.get("phone"),
+            names=request.POST.get("names"),
+            wallet=request.POST.get("wallet"),
+        )
 
-    amount = models.DecimalField(
-        max_digits=20,
-        decimal_places=6
-    )
+        return redirect("dashboard")
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-
-class Notification(models.Model):
-
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
-
-    message = models.TextField()
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    return render(request, "deposit.html", {"rate": 1300})
 
 
-class SupportMessage(models.Model):
+# =========================
+# WITHDRAW
+# =========================
+def withdraw(request):
 
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
+    if request.method == "POST":
 
-    sender = models.CharField(
-        max_length=20
-    )
+        Withdraw.objects.create(
+            user=request.user,
+            withdraw_type=request.POST.get("type"),
+            amount_usd=request.POST.get("amount_usd"),
+            phone=request.POST.get("phone"),
+            id_names=request.POST.get("id_names"),
+            wallet=request.POST.get("wallet"),
+        )
 
-    message = models.TextField()
+        return redirect("dashboard")
 
-    is_read = models.BooleanField(
-        default=False
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    return render(request, "withdraw.html", {"rate": 1300})
 
 
-class ReferralBonus(models.Model):
+# =========================
+# TRANSACTIONS
+# =========================
+def transactions(request):
 
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
+    data = Transaction.objects.filter(user=request.user)
 
-    referred_user = models.ForeignKey(
-        User,
-        related_name="referred_user",
-        on_delete=models.CASCADE
-    )
+    return render(request, "transactions.html", {"transactions": data})
 
-    deposit = models.ForeignKey(
-        Deposit,
-        on_delete=models.CASCADE
-    )
 
-    bonus_percent = models.DecimalField(
-        max_digits=5,
-        decimal_places=2
-    )
+# =========================
+# NOTIFICATIONS
+# =========================
+def notifications(request):
 
-    expires_at = models.DateTimeField()
+    data = Notification.objects.filter(user=request.user)
 
-    is_active = models.BooleanField(
-        default=True
-    )
+    return render(request, "notifications.html", {"notifications": data})
+
+
+# =========================
+# SUPPORT
+# =========================
+def support(request):
+
+    if request.method == "POST":
+
+        SupportMessage.objects.create(
+            user=request.user,
+            sender="user",
+            message=request.POST.get("message")
+        )
+
+        return redirect("support")
+
+    messages = SupportMessage.objects.filter(user=request.user)
+
+    return render(request, "support.html", {"messages": messages})
+
+
+# =========================
+# CLAIM INTEREST (AJAX)
+# =========================
+from django.http import JsonResponse
+
+def claim_interest(request):
+
+    profile = Profile.objects.get(user=request.user)
+
+    profile.balance += profile.interest_balance
+    profile.interest_balance = 0
+    profile.save()
+
+    return JsonResponse({
+        "balance": float(profile.balance),
+        "interest": float(profile.interest_balance)
+    })

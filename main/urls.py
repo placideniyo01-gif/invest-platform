@@ -1,57 +1,19 @@
-# main/urls.py
-
 from django.urls import path
-from .views import *
+from . import views
 
 urlpatterns = [
 
-    path(
-        "register/",
-        register_view
-    ),
+    path("", views.dashboard, name="dashboard"),
+    path("login/", views.login_view, name="login"),
+    path("register/", views.register, name="register"),
 
-    path(
-        "login/",
-        login_view
-    ),
+    path("deposit/", views.deposit, name="deposit"),
+    path("withdraw/", views.withdraw, name="withdraw"),
 
-    path(
-        "logout/",
-        logout_view
-    ),
+    path("transactions/", views.transactions, name="transactions"),
+    path("notifications/", views.notifications, name="notifications"),
 
-    path(
-        "dashboard/",
-        dashboard
-    ),
+    path("support/", views.support, name="support"),
 
-    path(
-        "deposit/",
-        deposit
-    ),
-
-    path(
-        "withdraw/",
-        withdraw
-    ),
-
-    path(
-        "support/",
-        support
-    ),
-
-    path(
-        "notifications/",
-        notifications
-    ),
-
-    path(
-        "transactions/",
-        transactions
-    ),
-
-    path(
-        "claim-interest/",
-        claim_interest
-    ),
+    path("claim-interest/", views.claim_interest, name="claim_interest"),
 ]
