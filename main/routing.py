@@ -1,10 +1,17 @@
-from django.urls import path
-from .consumers import BalanceConsumer
+# main/routing.py
+
+from django.urls import re_path
+from .consumers import *
 
 websocket_urlpatterns = [
 
-    path(
-        "ws/balance/",
+    re_path(
+        r'ws/balance/$',
         BalanceConsumer.as_asgi()
+    ),
+
+    re_path(
+        r'ws/support/$',
+        SupportConsumer.as_asgi()
     ),
 ]

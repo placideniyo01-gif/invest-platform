@@ -1,0 +1,260 @@
+<!-- templates/base.html -->
+
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}Platform{% endblock %}
+    </title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#020617;
+            color:white;
+            font-family:Arial,sans-serif;
+            overflow-x:hidden;
+        }
+
+        a{
+            text-decoration:none;
+        }
+
+        .container{
+            max-width:700px;
+            margin:auto;
+            padding:20px;
+            padding-bottom:100px;
+        }
+
+        .card{
+            background:#111827;
+            border:1px solid #334155;
+            border-radius:25px;
+            padding:25px;
+            margin-top:20px;
+        }
+
+        .btn{
+            width:100%;
+            padding:16px;
+            border:none;
+            border-radius:15px;
+            cursor:pointer;
+            font-weight:bold;
+            color:white;
+
+            background:linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+            transition:.3s;
+        }
+
+        .btn:hover{
+            transform:translateY(-2px);
+        }
+
+        input,
+        select{
+
+            width:100%;
+
+            padding:15px;
+
+            border:none;
+
+            border-radius:14px;
+
+            background:#1e293b;
+
+            color:white;
+
+            margin-top:15px;
+
+            font-size:15px;
+        }
+
+        input:focus,
+        select:focus{
+
+            outline:none;
+
+            border:1px solid #2563eb;
+        }
+
+        .top-nav{
+
+            background:#0f172a;
+
+            padding:18px;
+
+            position:sticky;
+
+            top:0;
+
+            z-index:999;
+
+            border-bottom:1px solid #1e293b;
+        }
+
+        .top-nav-inner{
+
+            max-width:700px;
+
+            margin:auto;
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+        }
+
+        .logo{
+            font-size:20px;
+            font-weight:bold;
+            color:#22c55e;
+        }
+
+        .nav-links{
+            display:flex;
+            gap:12px;
+        }
+
+        .nav-links a{
+            color:#cbd5e1;
+            font-size:14px;
+        }
+
+        .notify{
+
+            position:fixed;
+
+            top:20px;
+
+            right:20px;
+
+            background:#22c55e;
+
+            color:white;
+
+            padding:15px 22px;
+
+            border-radius:15px;
+
+            display:none;
+
+            z-index:999999;
+        }
+
+        @media(max-width:600px){
+
+            .top-nav-inner{
+                flex-direction:column;
+                gap:10px;
+            }
+
+            .nav-links{
+                flex-wrap:wrap;
+                justify-content:center;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="top-nav">
+
+    <div class="top-nav-inner">
+
+        <div class="logo">
+            INVEST PRO
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/dashboard/">
+                Dashboard
+            </a>
+
+            <a href="/deposit/">
+                Deposit
+            </a>
+
+            <a href="/withdraw/">
+                Withdraw
+            </a>
+
+            <a href="/support/">
+                Support
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="notify" class="notify"></div>
+
+<div class="container">
+
+    {% block content %}
+    {% endblock %}
+
+</div>
+
+<script>
+
+function notify(message){
+
+    let box =
+    document.getElementById("notify")
+
+    box.innerHTML = message
+
+    box.style.display = "block"
+
+    setTimeout(()=>{
+
+        box.style.display = "none"
+
+    },4000)
+}
+
+
+// SAFE WEBSOCKET
+const wsProtocol =
+window.location.protocol === "https:"
+? "wss://"
+: "ws://"
+
+</script>
+
+{% block scripts %}
+{% endblock %}
+
+</body>
+</html>

@@ -1,38 +1,57 @@
+# main/urls.py
+
 from django.urls import path
-from . import views
-from . import views
+from .views import *
 
 urlpatterns = [
 
-    path('', views.login_view, name='login'),
-    path("login/", views.login_view, name="login"),
-    path('register/', views.register_view, name='register'),
+    path(
+        "register/",
+        register_view
+    ),
 
-    path('dashboard/', views.dashboard, name='dashboard'),
-    
-    path('deposit/', views.deposit, name='deposit'),
-    path('withdraw/', views.withdraw, name='withdraw'),
-    path('claim-interest/', views.claim_interest, name='claim_interest'),
-    path('transactions/', views.transactions_view, name="transactions"),
-    path('approve-deposit/<int:id>/', views.approve_deposit),
-    path('reject-deposit/<int:id>/', views.reject_deposit),
-    path("support/", views.support_view, name="support"),
-    path('approve-withdraw/<int:id>/', views.approve_withdraw),
-    path('reject-withdraw/<int:id>/', views.reject_withdraw),
     path(
-    'notifications/',
-    views.notifications_view,
-    name='notifications'
-),
-    path(
-    'balance-api/',
-    views.balance_api,
-    name='balance_api'
-),
-    path("api/approve-deposit/<int:id>/", views.approve_deposit),
-    path(
-    "unread-support-count/",
-    views.unread_support_count
-),
+        "login/",
+        login_view
+    ),
 
-]   
+    path(
+        "logout/",
+        logout_view
+    ),
+
+    path(
+        "dashboard/",
+        dashboard
+    ),
+
+    path(
+        "deposit/",
+        deposit
+    ),
+
+    path(
+        "withdraw/",
+        withdraw
+    ),
+
+    path(
+        "support/",
+        support
+    ),
+
+    path(
+        "notifications/",
+        notifications
+    ),
+
+    path(
+        "transactions/",
+        transactions
+    ),
+
+    path(
+        "claim-interest/",
+        claim_interest
+    ),
+]

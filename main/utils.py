@@ -1,27 +1,30 @@
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-def notify_admin(data):
+
+def push_balance_update(user, profile):
 
     channel_layer = get_channel_layer()
 
     async_to_sync(channel_layer.group_send)(
-        "admin_live",
+        f"user_{user.id}",
         {
-            "type": "send_update",
-            "data": data
+            "type": "send_balance",
+            "balance": float(profile.balance),
+            "interest": float(profile.interest_balance)
         }
     )
 
 
-def send_live_update(data):
+def push_support_message(user, message, sender):
 
     channel_layer = get_channel_layer()
 
     async_to_sync(channel_layer.group_send)(
-        "admin_live",
+        f"user_{user.id}",
         {
-            "type": "send_update",
-            "data": data
+            "type": "support_message",
+            "message": message,
+            "sender": sender
         }
     )

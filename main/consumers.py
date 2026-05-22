@@ -1,20 +1,15 @@
+# main/consumers.py
+
 import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
-# =========================================
-# BALANCE CONSUMER
-# =========================================
 class BalanceConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
 
-        if self.scope["user"].is_anonymous:
-            await self.close()
-            return
-
-        self.group_name = f"user_{self.scope['user'].id}"
+        self.group_name = "balance"
 
         await self.channel_layer.group_add(
             self.group_name,
@@ -23,14 +18,41 @@ class BalanceConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-        # USER ONLINE STATUS
-        await self.channel_layer.group_send(
+    async def disconnect(self, close_code):
+
+        await self.channel_layer.group_discard(
             self.group_name,
-            {
-                "type": "user_status",
-                "status": "online"
-            }
+            self.channel_name
         )
+
+    async def receive(self, text_data):
+
+        pass
+
+    async def send_balance(self, event):
+
+        await self.send(text_data=json.dumps({
+
+            "type":"balance",
+
+            "balance":event["balance"],
+
+            "interest":event["interest"]
+        }))
+
+
+class SupportConsumer(AsyncWebsocketConsumer):
+
+    async def connect(self):
+
+        self.group_name = "support"
+
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+
+        await self.accept()
 
     async def disconnect(self, close_code):
 
@@ -39,68 +61,11 @@ class BalanceConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-    # ==============================
-    # BALANCE UPDATE
-    # ==============================
-    async def send_balance(self, event):
+    async def support_message(self,event):
 
         await self.send(text_data=json.dumps({
 
-            "type": "balance",
+            "type":"support",
 
-            "balance": event["balance"],
-
-            "interest": event["interest"]
+            "message":event["message"]
         }))
-
-    # ==============================
-    # SUPPORT MESSAGE
-    # ==============================
-    async def support_message(self, event):
-
-        await self.send(text_data=json.dumps({
-
-            "type": "support",
-
-            "message": event["message"],
-
-            "sender": event["sender"],
-
-            "unread": event["unread"]
-        }))
-
-    # ==============================
-    # USER STATUS
-    # ==============================
-    async def user_status(self, event):
-
-        await self.send(text_data=json.dumps({
-
-            "type": "status",
-
-            "status": event["status"]
-        }))
-     # =====================
-    # SUPPORT MESSAGE
-    # =====================
-    async def support_message(self, event):
-
-        await self.send(
-            text_data=json.dumps({
-                "type": "support",
-
-                "message":
-                event["message"],
-
-                "sender":
-                event["sender"]
-            })
-        )
-
-class NotificationConsumer(AsyncWebsocketConsumer):
-
-    async def connect(self):
-        await self.accept()
-
-    async def disconnect(self, close_code):
-        pass

@@ -1,6 +1,10 @@
 from pathlib import Path
 import os
 
+# =========================================
+# BASE DIRECTORY
+# =========================================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================================
@@ -17,6 +21,11 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "*"
 ]
+
+SECURE_PROXY_SSL_HEADER = (
+    'HTTP_X_FORWARDED_PROTO',
+    'https'
+)
 
 # =========================================
 # INSTALLED APPS
@@ -104,6 +113,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
+
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
@@ -115,19 +125,23 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = [
 
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
 
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
 
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
 
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
@@ -160,6 +174,14 @@ STATICFILES_STORAGE = (
 )
 
 # =========================================
+# MEDIA FILES
+# =========================================
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# =========================================
 # CSRF
 # =========================================
 
@@ -167,19 +189,11 @@ CSRF_TRUSTED_ORIGINS = [
     "https://*.onrender.com",
 ]
 
-# =========================================
-# DEFAULT AUTO FIELD
-# =========================================
+CSRF_COOKIE_HTTPONLY = False
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CSRF_COOKIE_SECURE = False
 
-# =========================================
-# LOGIN
-# =========================================
-
-LOGIN_URL = '/login/'
-
-LOGIN_REDIRECT_URL = '/dashboard/'
+CSRF_COOKIE_SAMESITE = "Lax"
 
 # =========================================
 # SESSION
@@ -189,10 +203,22 @@ SESSION_COOKIE_AGE = 1209600
 
 SESSION_SAVE_EVERY_REQUEST = True
 
-# =========================================
-# SECURITY
-# =========================================
-
 SESSION_COOKIE_SECURE = False
 
-CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SAMESITE = "Lax"
+
+# =========================================
+# LOGIN
+# =========================================
+
+LOGIN_URL = '/login/'
+
+LOGIN_REDIRECT_URL = '/dashboard/'
+
+LOGOUT_REDIRECT_URL = '/login/'
+
+# =========================================
+# DEFAULT AUTO FIELD
+# =========================================
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
