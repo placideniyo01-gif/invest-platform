@@ -96,3 +96,11 @@ class BalanceConsumer(AsyncWebsocketConsumer):
                 event["sender"]
             })
         )
+
+class NotificationConsumer(AsyncWebsocketConsumer):
+
+    async def connect(self):
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        pass

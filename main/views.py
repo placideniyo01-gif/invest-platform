@@ -30,39 +30,11 @@ from .models import (
 # =========================
 # SEND LIVE EVENT
 # =========================
-def send_live_event(user, data):
-
-    channel_layer = get_channel_layer()
-
-    if channel_layer is None:
-        return
-
-    async_to_sync(
-        channel_layer.group_send
-    )(
-        f"user_{user.id}",
-        {
-            "type": "send_live_data",
-            "data": data
-        }
-    )
 
 
 # =========================
 # PUSH BALANCE UPDATE
 # =========================
-def push_balance_update(user, profile):
-
-    send_live_event(user, {
-
-        "type": "balance_update",
-
-        "balance": float(profile.balance),
-
-        "interest": float(
-            profile.interest_balance
-        )
-    })
 
 
 # =========================
@@ -392,14 +364,6 @@ def claim_interest(request):
         profile
     )
 
-    send_live_event(request.user, {
-
-        "type": "popup",
-
-        "message":
-        "Interest claimed successfully ✅"
-    })
-
     return JsonResponse({
 
         "balance": profile.balance,
@@ -530,15 +494,6 @@ def deposit(request):
                 status="Pending"
             )
 
-        # LIVE POPUP
-        send_live_event(request.user, {
-
-            "type": "popup",
-
-            "message":
-            "Deposit request submitted 🚀"
-        })
-
         return redirect("dashboard")
 
     return render(
@@ -640,13 +595,6 @@ def withdraw(request):
             status="Pending"
         )
 
-        send_live_event(request.user, {
-
-            "type": "popup",
-
-            "message":
-            "Withdraw request submitted 💸"
-        })
 
         return redirect("dashboard")
 
@@ -813,14 +761,6 @@ def approve_deposit(request, id):
                     )
                 )
 
-                send_live_event(referrer, {
-
-                    "type": "popup",
-
-                    "message":
-                    f"Referral bonus +{bonus_percent}% 🚀"
-                })
-
         Notification.objects.create(
 
             user=d.user,
@@ -835,15 +775,6 @@ def approve_deposit(request, id):
             d.user,
             profile
         )
-
-        send_live_event(d.user, {
-
-            "type": "popup",
-
-            "message":
-            f"Deposit approved ✅ ${d.amount_usd}"
-        })
-
     return redirect(
         "/admin/main/deposit/"
     )
@@ -869,14 +800,6 @@ def reject_deposit(request, id):
             f"${d.amount_usd} rejected"
         )
     )
-
-    send_live_event(d.user, {
-
-        "type": "popup",
-
-        "message":
-        f"Deposit rejected ❌"
-    })
 
     return redirect(
         '/admin/main/deposit/'
@@ -927,14 +850,6 @@ def approve_withdraw(request, id):
             profile
         )
 
-        send_live_event(w.user, {
-
-            "type": "popup",
-
-            "message":
-            f"Withdraw approved 💸"
-        })
-
     return redirect(
         '/admin/main/withdraw/'
     )
@@ -960,14 +875,6 @@ def reject_withdraw(request, id):
             f"${w.amount_usd} rejected"
         )
     )
-
-    send_live_event(w.user, {
-
-        "type": "popup",
-
-        "message":
-        "Withdraw rejected ❌"
-    })
 
     return redirect(
         '/admin/main/withdraw/'
@@ -1001,12 +908,6 @@ def support_view(request):
                 "user"
             )
             # LIVE TO USER
-            send_live_event(request.user, {
-
-                "type": "support_sent",
-
-                "message": message
-            })
 
         return redirect("support")
 

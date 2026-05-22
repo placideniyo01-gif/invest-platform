@@ -13,7 +13,7 @@ SECRET_KEY = os.environ.get(
     "django-secret-key"
 )
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
@@ -178,7 +178,7 @@ STATICFILES_STORAGE = (
 )
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://*.onrender.com",
+    "https://invest-platform-jwy9.onrender.com",
 ]
 
 # =========================================
@@ -194,11 +194,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-
-        "CONFIG": {
-            "hosts": [os.environ.get("REDIS_URL")],
-        },
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
 
