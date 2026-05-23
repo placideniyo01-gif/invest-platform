@@ -1,9 +1,7 @@
-# requirements.txt
-
-Django==5.0.6
-channels==4.1.0
-daphne==4.1.2
-whitenoise==6.7.0
-gunicorn==22.0.0
-channels-redis==4.2.0
-redis==5.0.4
+Django
+gunicorn
+whitenoise
+channels
+daphne
+dj-database-url
+psycopg2-binary

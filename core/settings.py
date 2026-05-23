@@ -33,6 +33,10 @@ SECURE_PROXY_SSL_HEADER = (
 
 INSTALLED_APPS = [
 
+    'daphne',
+
+    'channels',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -181,6 +185,7 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
+ASGI_APPLICATION = "core.asgi.application"
 # =========================================
 # CSRF
 # =========================================

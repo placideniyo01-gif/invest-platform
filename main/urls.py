@@ -1,13 +1,27 @@
 from django.urls import path
-from .views import *
+from . import views
 
 urlpatterns = [
-    path("login/", login_view),
-    path("register/", register_view),
-    path("dashboard/", dashboard_view),
-    path("deposit/", deposit_view),
-    path("withdraw/", withdraw_view),
-    path("support/", support_view),
-    path("notifications/", notifications_view),
-    path("transactions/", transactions_view),
+
+    path('', views.dashboard),
+
+    path('login/', views.login_view),
+
+    path('register/', views.register),
+
+    path('dashboard/', views.dashboard),
+
+    path('deposit/', views.deposit),
+
+    path('withdraw/', views.withdraw),
+
+    path('transactions/', views.transactions),
+
+    path('notifications/', views.notifications),
+
+    path('support/', views.support),
+
+    path('claim-interest/', views.claim_interest),
+
+    path('logout/', views.logout_view),
 ]
