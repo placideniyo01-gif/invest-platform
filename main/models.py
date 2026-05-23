@@ -66,7 +66,9 @@ class Deposit(models.Model):
 
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     deposit_type = models.CharField(
@@ -130,7 +132,9 @@ class Withdraw(models.Model):
 
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     withdraw_type = models.CharField(
@@ -187,7 +191,9 @@ class Transaction(models.Model):
 
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     type = models.CharField(
@@ -220,7 +226,9 @@ class Notification(models.Model):
 
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     message = models.TextField()
@@ -248,11 +256,6 @@ class ReferralBonus(models.Model):
         related_name="referrer_bonus"
     )
 
-    referred_user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="referred_bonus"
-    )
 
     deposit = models.ForeignKey(
         Deposit,
@@ -293,7 +296,9 @@ class SupportMessage(models.Model):
 
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     sender = models.CharField(

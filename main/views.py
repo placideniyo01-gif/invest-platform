@@ -153,6 +153,10 @@ def dashboard(request):
         + f"?ref={profile.referral_code}"
     )
 
+    recent_transactions = Transaction.objects.filter(
+        user=request.user
+    ).order_by("-id")[:10]
+
     total_referrals = ReferralBonus.objects.filter(
         referrer=request.user
     ).count()
@@ -184,6 +188,8 @@ def dashboard(request):
 
         "unread_messages":
         unread_messages,
+
+        "recent_transactions": recent_transactions,
     })
 
 
