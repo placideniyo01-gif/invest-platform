@@ -62,9 +62,11 @@ def register(request):
                 password=password
             )
 
-            Profile.objects.create(
+            Profile.objects.get_or_create(
                 user=user,
-                referral_code=generate_referral_code()
+                defaults={
+                    "referral_code": generate_referral_code()
+                }
             )
 
             return redirect("/login/")
@@ -72,8 +74,6 @@ def register(request):
     return render(request, "register.html", {
         "error": error
     })
-
-
 # =========================================
 # LOGIN
 # =========================================
